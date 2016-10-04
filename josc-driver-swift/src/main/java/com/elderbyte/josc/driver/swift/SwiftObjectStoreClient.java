@@ -1,11 +1,13 @@
-package com.elderbyte.josc.driver.minio;
+package com.elderbyte.josc.driver.swift;
 
 import com.elderbyte.josc.core.BlobObjectSimple;
 import com.elderbyte.josc.core.BucketSimple;
 import com.elderbyte.josc.api.*;
 import com.elderbyte.josc.core.Streams;
-import io.minio.MinioClient;
-import io.minio.ObjectStat;
+import org.javaswift.joss.headers.object.range.ExcludeStartRange;
+import org.javaswift.joss.instructions.DownloadInstructions;
+import org.javaswift.joss.model.Account;
+import org.javaswift.joss.model.StoredObject;
 
 
 import java.io.InputStream;
@@ -16,22 +18,22 @@ import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
 
-public class MinioObjectStoreClient implements ObjectStoreClient {
+public class SwiftObjectStoreClient implements ObjectStoreClient {
 
 
-    private final MinioClient minioClient;
+    private final Account swiftClient;
 
-    public MinioObjectStoreClient(MinioClient minioClient){
-        this.minioClient = minioClient;
+    public SwiftObjectStoreClient(Account swiftClient){
+        this.swiftClient = swiftClient;
     }
 
     @Override
     public Stream<Bucket> listBuckets() {
 
         try {
-            return minioClient.listBuckets().stream()
-                .map(b -> new BucketSimple(b.name(),
-                    LocalDateTime.ofInstant(b.creationDate().toInstant(), ZoneId.systemDefault())));
+            return swiftClient.list().stream()
+                .map(b -> new BucketSimple(b.getName(), LocalDateTime.now())); // TODO get creation date
+                    //, ZoneId.systemDefault()))); // LocalDateTime.ofInstant(b.get().toInstant()
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list buckets!", e);
         }
@@ -40,7 +42,7 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public boolean bucketExists(String bucket) {
         try {
-            return minioClient.bucketExists(bucket);
+            return swiftClient.getContainer(bucket).exists();
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to check if bucket "+bucket+" exists!", e);
         }
@@ -49,7 +51,7 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public void removeBucket(String bucket) {
         try {
-            minioClient.removeBucket(bucket);
+            swiftClient.getContainer(bucket).delete();
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to remove bucket "+bucket+"!", e);
         }
@@ -58,7 +60,7 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public void createBucket(String bucket) {
         try {
-            minioClient.makeBucket(bucket);
+            swiftClient.getContainer(bucket).create();
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create bucket "+bucket+"!", e);
         }
@@ -77,15 +79,11 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
 
     @Override
     public Stream<BlobObject> listBlobObjects(String bucket, String keyPrefix, boolean recursive) {
+
         try {
-            return Streams.stream(minioClient.listObjects(bucket, keyPrefix, recursive))
-                .map(res -> {
-                    try {
-                        return res.get();
-                    }catch (Exception e){
-                        throw new ObjectStoreClientException("Failed to get details of object: " + bucket +" / " + keyPrefix + " recourse: " + recursive, e);
-                    }
-                }).map(obj -> new MinioBlobObject(obj));
+            return swiftClient.getContainer(bucket).list(keyPrefix, null, 99999) // TODO Handle pagination
+                    .stream()
+                    .map(obj -> new SwiftBlobObject(obj));
 
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list bucket: "+bucket+" and  prefix: "+keyPrefix+ "!", e);
@@ -95,7 +93,7 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public InputStream getBlobObject(String bucket, String key) {
         try {
-            return minioClient.getObject(bucket, key);
+            return swiftClient.getContainer(bucket).getObject(key).downloadObjectAsInputStream();
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to get InputStream of object: " + bucket +" / " + key, e);
         }
@@ -104,7 +102,10 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public InputStream getBlobObject(String bucket, String key, long offset) {
         try {
-            return minioClient.getObject(bucket, key, offset);
+            return swiftClient.getContainer(bucket).getObject(key)
+                    .downloadObjectAsInputStream(
+                            new DownloadInstructions()
+                            .setRange(new ExcludeStartRange((int)offset)));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to get InputStream of object: " + bucket +" / " + key, e);
         }
@@ -114,13 +115,14 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     public BlobObject getBlobObjectInfo(String bucket, String key) {
         try {
 
-            ObjectStat stat = minioClient.statObject(bucket, key);
+            StoredObject object = swiftClient.getContainer(bucket).getObject(key);
+
             return new BlobObjectSimple(
                 key,
-                stat.length(),
-                ZonedDateTime.ofInstant(stat.createdTime().toInstant(),
+                object.getContentLength(),
+                ZonedDateTime.ofInstant(object.getLastModifiedAsDate().toInstant(),
                 ZoneId.systemDefault()),
-                stat.etag()
+                    object.getEtag()
             );
 
         }catch (Exception e){
@@ -131,7 +133,8 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public void putBlobObject(String bucket, String key, Path file){
         try {
-            minioClient.putObject(bucket, key, file.toString());
+            swiftClient.getContainer(bucket).getObject(key)
+                    .uploadObject(file.toFile());
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to upload blob object: "  + bucket +" / " + key + " from file " + file, e);
         }
@@ -140,7 +143,8 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public void putBlobObject(String bucket, String key, InputStream objectStream, long length, String mimeType){
         try {
-            minioClient.putObject(bucket, key, objectStream, length, mimeType);
+            swiftClient.getContainer(bucket).getObject(key)
+                    .uploadObject(objectStream);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to upload blob object.", e);
         }
@@ -149,7 +153,7 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public void deleteBlobObject(String bucket, String key) {
         try {
-            minioClient.removeObject(bucket, key);
+            swiftClient.getContainer(bucket).getObject(key).delete();
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to delete object " + bucket + " : " + key, e);
         }
@@ -158,18 +162,18 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public String getTempGETUrl(String bucket, String key) {
         try {
-            return minioClient.presignedGetObject(bucket, key);
+            return swiftClient.getContainer(bucket).getObject(key).getTempGetUrl(3600 * 24);
         }catch (Exception e){
-            throw new ObjectStoreClientException("Failed to create presignedGetObject " + bucket + " : " + key, e);
+            throw new ObjectStoreClientException("Failed to create presigned GetObject url " + bucket + " : " + key, e);
         }
     }
 
     @Override
     public String getTempPUTUrl(String bucket, String key) {
         try {
-            return minioClient.presignedPutObject(bucket, key);
+            return swiftClient.getContainer(bucket).getObject(key).getTempPutUrl(3600 * 24);
         }catch (Exception e){
-            throw new ObjectStoreClientException("Failed to create presignedGetObject " + bucket + " : " + key, e);
+            throw new ObjectStoreClientException("Failed to create presigned PutObject " + bucket + " : " + key, e);
         }
     }
 }
