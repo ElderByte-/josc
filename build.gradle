@@ -1,0 +1,16 @@
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.14.1'
+}
+
+
+allprojects {
+    version =  '0.1.0'
+
+    tasks.withType(Javadoc) {
+        // Avoid failing builds because of java-doc errors
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding','UTF-8')
+    }
+}

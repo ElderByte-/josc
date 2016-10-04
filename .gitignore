@@ -1,0 +1,12 @@
+
+
+######################
+# Gradle
+######################
+.gradle/**
+!gradle-wrapper.jar
+
+
+
+.idea
+gradle.properties
