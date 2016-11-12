@@ -19,6 +19,8 @@ compileJava {
 
 dependencies {
 
+    compile("com.github.ben-manes.caffeine:caffeine:2.3.4") // Used for simple connection pool
+
     // Test dependencies
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
