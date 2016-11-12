@@ -8,23 +8,23 @@ import java.util.*;
 /**
  * The standard josc driver manager implementation.
  */
-public class ObjectStoreDriverManager implements ObjectStoreClientFactory {
+public class JoscDriverManager implements ObjectStoreClientFactory {
 
-    private final static ObjectStoreDriverManager defaultInstance = buildDefault();
+    private final static JoscDriverManager defaultInstance = buildDefault();
 
     /**
      * Gets the default driver manager, where josc drivers register themselves.
      */
-    public static ObjectStoreDriverManager getDefault(){
+    public static JoscDriverManager getDefault(){
         return defaultInstance;
     }
 
 
-    private static ObjectStoreDriverManager buildDefault(){
+    private static JoscDriverManager buildDefault(){
 
         ServiceLoader<JoscDriver> driverLoader = ServiceLoader.load(JoscDriver.class);
 
-        ObjectStoreDriverManager driverManager = new ObjectStoreDriverManager();
+        JoscDriverManager driverManager = new JoscDriverManager();
 
         try {
             for(JoscDriver driver : driverLoader) {
@@ -41,7 +41,7 @@ public class ObjectStoreDriverManager implements ObjectStoreClientFactory {
     private final List<JoscDriver> drivers = new ArrayList<>();
 
 
-    public ObjectStoreDriverManager() {
+    public JoscDriverManager() {
 
     }
 
