@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/ElderByte-/josc.svg?branch=master)](https://travis-ci.org/ElderByte-/josc)
 
-# !! Alpha status (The API and the implementations are not stable yet)
+[ ![Download](https://api.bintray.com/packages/elderbyte/maven/josc-full/images/download.svg) ](https://bintray.com/elderbyte/maven/josc-full/_latestVersion)
 
 # josc
 Java Object Store Connectivity - Provides a client abstraction to several Object / Blob Stores such as S3, OpenStack Swift etc. At its core, josc defines a (simple) Object Store Client API as a set of Interfaces and base classes.
@@ -15,7 +15,7 @@ josc:s3:https://myServer:9000
 ```
 
 * Every josc connection-string starts with `josc`
-* The first two colons `:` separate the three main parts, which are the magic jost, the protocol and the vendor informaiton
+* The first two colons `:` separate the three main parts, which are the magic `josc`, the protocol and the vendor informaiton
 
 ### Supported protocols
 
@@ -25,3 +25,10 @@ josc:s3:https://myServer:9000
 * `fs`  Local file system adapter, usefull for test environments or simplistic usage
 
 Of course, you can implement and register your own drivers. The josc archtecture is specifically designed to support custom vendor implementations. 
+
+
+### Create a custom JOSC driver
+
+* Add the `com.elderbyte.josc:josc-api` dependency to your project.
+* Implement the `com.elderbyte.josc.api.JoscDriver` interface
+* To automatically register the driver in josc as soon as it is on the class-path, create a `META-INF/services/com.elderbyte.josc.api.JoscDriver` file. In this file, specify your implementation class with the full package path.
