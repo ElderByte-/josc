@@ -22,7 +22,7 @@ dependencies {
     compile project(':josc-api')
 
     // S3 / minio client
-    compile group: 'io.minio', name: 'minio', version: '2.0.3'
+    compile group: 'io.minio', name: 'minio', version: '3.0.1'
 
     // Test dependencies
     testCompile group: 'junit', name: 'junit', version: '4.12'
