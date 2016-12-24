@@ -22,7 +22,7 @@ dependencies {
     compile project(':josc-api')
 
     // OpenStack Swift client
-    compile group: 'org.javaswift', name: 'joss', version: '0.9.13'
+    compile group: 'org.javaswift', name: 'joss', version: '0.9.14'
 
     // Test dependencies
     testCompile group: 'junit', name: 'junit', version: '4.12'
