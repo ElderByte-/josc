@@ -14,7 +14,7 @@ A josc connection string denotes the target system and the required driver:
 josc:s3:https://myServer:9000
 ```
 
-* Every josc connection-string starts with `josc`
+* The josc connection string format: `josc:{protocol}:{host-url};property1=1;property2=2`
 * The first two colons `:` separate the three main parts, which are the magic `josc`, the protocol and the vendor informaiton
 
 ### Supported protocols
