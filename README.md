@@ -21,7 +21,7 @@ josc:s3:https://myServer:9000
 
 * `s3`  S3 compatible driver - built upon [minio/minio-java](https://github.com/minio/minio-java)
 * `webdav` WebDav adapter driver - built upon [lookfirst/sardine](https://github.com/lookfirst/sardine)
-* `swift` OpenStack Swift driver - build upon [JOSS](http://joss.javaswift.org) 
+* `swift` OpenStack Swift driver - build upon [javaswift/joss](https://github.com/javaswift/joss) 
 * `fs`  Local file system adapter, usefull for test environments or simplistic usage
 
 Of course, you can implement and register your own drivers. The josc archtecture is specifically designed to support custom vendor implementations. 
