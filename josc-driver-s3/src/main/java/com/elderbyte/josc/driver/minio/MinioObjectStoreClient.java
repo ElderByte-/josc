@@ -27,7 +27,6 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
 
     @Override
     public Stream<Bucket> listBuckets() {
-
         try {
             return minioClient.listBuckets().stream()
                 .map(b -> new BucketSimple(b.name(),
@@ -170,6 +169,23 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
             return minioClient.presignedPutObject(bucket, key);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create presignedGetObject " + bucket + " : " + key, e);
+        }
+    }
+
+    public void copyBlobObject(String sourceBucket, String sourceKey, String destinationBucket, String destinationKey){
+        try {
+            minioClient.copyObject(sourceBucket, sourceKey, destinationBucket, destinationKey);
+        }catch (Exception e){
+            throw new ObjectStoreClientException("Failed to copy " + sourceBucket + " / " + sourceKey + " to " + destinationBucket + " / " + destinationKey, e);
+        }
+    }
+
+
+    public String getPublicUrl(String bucket, String key){
+        try {
+            return minioClient.getObjectUrl(bucket, key);
+        }catch (Exception e){
+            throw new ObjectStoreClientException("Failed to get public object url " + bucket + " : " + key, e);
         }
     }
 }

@@ -171,6 +171,15 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
+    public void copyBlobObject(String sourceBucket, String sourceKey, String destinationBucket, String destinationKey) {
+        try {
+            sardine.copy(getObjectUrl(sourceBucket, sourceKey), getObjectUrl(destinationBucket, destinationKey));
+        }catch (Exception e){
+            throw new ObjectStoreClientException("Failed to copy object: " + sourceBucket + " / " + sourceKey + " to " + destinationBucket + " / " + destinationKey , e);
+        }
+    }
+
+    @Override
     public String getTempGETUrl(String bucket, String key) {
         String url = getObjectUrl(bucket, key);
         return preAuthorize(url);
@@ -180,6 +189,11 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
     public String getTempPUTUrl(String bucket, String key) {
         String url = getObjectUrl(bucket, key);
         return preAuthorize(url);
+    }
+
+    @Override
+    public String getPublicUrl(String bucket, String key) {
+        return getObjectUrl(bucket, key);
     }
 
 

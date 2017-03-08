@@ -104,6 +104,15 @@ public interface ObjectStoreClient {
      */
     void deleteBlobObject(String bucket, String key);
 
+    /**
+     * Copies the given blob object to the given destination.
+     *
+     * @param sourceBucket The source bucket
+     * @param sourceKey The source blob key
+     * @param destinationBucket The destination bucket
+     * @param destinationKey The destination key
+     */
+    void copyBlobObject(String sourceBucket, String sourceKey, String destinationBucket, String destinationKey);
 
     /***************************************************************************
      *                                                                         *
@@ -120,5 +129,11 @@ public interface ObjectStoreClient {
      * Returns a direct and signed URL to this blob store to which a new object can be uploaded.
      */
     String getTempPUTUrl(String bucket, String key);
+
+    /**
+     * Returns a direct url to this blob without any signing.
+     * The blob must therefore be available without a authentication.
+     */
+    String getPublicUrl(String bucket, String key);
 
 }

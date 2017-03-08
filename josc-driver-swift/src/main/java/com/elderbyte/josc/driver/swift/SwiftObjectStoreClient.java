@@ -7,6 +7,7 @@ import com.elderbyte.josc.core.Streams;
 import org.javaswift.joss.headers.object.range.ExcludeStartRange;
 import org.javaswift.joss.instructions.DownloadInstructions;
 import org.javaswift.joss.model.Account;
+import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
 
 
@@ -176,4 +177,26 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
             throw new ObjectStoreClientException("Failed to create presigned PutObject " + bucket + " : " + key, e);
         }
     }
+
+    public void copyBlobObject(String sourceBucket, String sourceKey, String destinationBucket, String destinationKey){
+        try {
+            Container destination = swiftClient.getContainer(destinationBucket);
+
+            swiftClient.getContainer(sourceBucket).getObject(sourceKey)
+                    .copyObject(destination, destination.getObject(destinationKey));
+
+        }catch (Exception e){
+            throw new ObjectStoreClientException("Failed to copy " + sourceBucket + " / " + sourceKey + " to " + destinationBucket + " / " + destinationKey, e);
+        }
+    }
+
+    public String getPublicUrl(String bucket, String key){
+        try {
+            return swiftClient.getContainer(bucket).getObject(key).getPublicURL();
+        }catch (Exception e){
+            throw new ObjectStoreClientException("Failed to get public object url " + bucket + " : " + key, e);
+        }
+    }
+
+
 }
