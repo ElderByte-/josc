@@ -1,4 +1,4 @@
 
-include 'josc-api', 'josc-driver-s3', 'josc-driver-webdav', 'josc-driver-swift', 'josc-full'
+include 'josc-api', 'josc-driver-s3', 'josc-driver-webdav', 'josc-driver-swift', 'josc-driver-fs-spring', 'josc-full'
 
 
