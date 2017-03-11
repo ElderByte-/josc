@@ -1,1 +1,1 @@
-com.elderbyte.josc.driver.minio.JoscDriverMinio
+com.elderbyte.josc.driver.fs.JoscDriverFS
