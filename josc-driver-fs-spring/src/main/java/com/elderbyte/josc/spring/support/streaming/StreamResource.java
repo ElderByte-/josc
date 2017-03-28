@@ -19,7 +19,7 @@ import java.util.function.Supplier;
      * @param name The display name of the resource
      * @param length The total length in bytes
      * @param lastModified Last modified time-stamp
-     * @param resourceStreamProvider The inputstream provider which delivers the data
+     * @param resourceStreamProvider The channel provider which delivers the data
      * @param mimeType The mime-type of this resource
      */
     public StreamResource(String name, long length, long lastModified, Supplier<ReadableByteChannel> resourceStreamProvider, String mimeType) {
