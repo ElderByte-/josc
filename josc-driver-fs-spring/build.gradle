@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.2.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.3.RELEASE")
     }
 }
 
@@ -73,6 +73,10 @@ publishing {
             artifact javadocJar
         }
     }
+}
+
+task upload {
+    dependsOn bintrayUpload
 }
 
 bintray {
