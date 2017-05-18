@@ -77,7 +77,13 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public Stream<BlobObject> listBlobObjects(String bucket, String keyPrefix, boolean recursive) {
         try {
-            return Streams.stream(minioClient.listObjects(bucket, keyPrefix, recursive))
+            return Streams.stream(
+                    minioClient.listObjects(
+                            bucket,
+                            keyPrefix,
+                            recursive,
+                            true) // Fallback to listObjectsV1 due to duplicates bug
+            )
                 .map(res -> {
                     try {
                         return res.get();
