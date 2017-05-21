@@ -22,6 +22,7 @@ public class BlobObjectSimple implements BlobObject {
     private final long length;
     private final String hash;
     private final ZonedDateTime lastModified;
+    private final boolean isDirectory;
     private static final Map<String, String> metaData = new HashMap<>(); // Not used for now
 
     /***************************************************************************
@@ -30,11 +31,12 @@ public class BlobObjectSimple implements BlobObject {
      *                                                                         *
      **************************************************************************/
 
-    public BlobObjectSimple(String objectName, long length, ZonedDateTime lastModified, String hash){
+    public BlobObjectSimple(String objectName, long length, ZonedDateTime lastModified, String hash, boolean isDirectory){
         this.objectName = objectName;
         this.length = length;
         this.lastModified = lastModified;
         this.hash = hash;
+        this.isDirectory = isDirectory;
     }
 
     /***************************************************************************
@@ -66,6 +68,11 @@ public class BlobObjectSimple implements BlobObject {
     @Override
     public Map<String, String> getMetaData() {
         return metaData;
+    }
+
+    @Override
+    public boolean isDirectory() {
+        return isDirectory;
     }
 
 

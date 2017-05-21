@@ -217,10 +217,13 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
     }
 
     private BlobObject toBlobObject(String bucket, DavResource res){
+
         return new BlobObjectSimple(
             getObjectKey(bucket, res),
             res.getContentLength(),
-            ZonedDateTime.ofInstant(res.getCreation().toInstant(), ZoneId.systemDefault()), res.getEtag());
+            ZonedDateTime.ofInstant(res.getCreation().toInstant(), ZoneId.systemDefault()),
+            res.getEtag(),
+            res.isDirectory());
     }
 
     private String getObjectKey(String bucket, DavResource res){

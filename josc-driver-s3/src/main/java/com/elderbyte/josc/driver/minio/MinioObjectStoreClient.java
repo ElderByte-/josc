@@ -1,6 +1,5 @@
 package com.elderbyte.josc.driver.minio;
 
-import com.elderbyte.josc.core.BlobObjectSimple;
 import com.elderbyte.josc.core.BucketSimple;
 import com.elderbyte.josc.api.*;
 import com.elderbyte.josc.core.Streams;
@@ -12,7 +11,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
 
@@ -90,7 +88,7 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
                     }catch (Exception e){
                         throw new ObjectStoreClientException("Failed to get details of object: " + bucket +" / " + keyPrefix + " recourse: " + recursive, e);
                     }
-                }).map(obj -> new MinioBlobObject(obj));
+                }).map(obj -> MinioBlobObjectBuilder.build(obj));
 
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list bucket: "+bucket+" and  prefix: "+keyPrefix+ "!", e);
@@ -118,16 +116,8 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     @Override
     public BlobObject getBlobObjectInfo(String bucket, String key) {
         try {
-
             ObjectStat stat = minioClient.statObject(bucket, key);
-            return new BlobObjectSimple(
-                key,
-                stat.length(),
-                ZonedDateTime.ofInstant(stat.createdTime().toInstant(),
-                ZoneId.systemDefault()),
-                stat.etag()
-            );
-
+            return MinioBlobObjectBuilder.build(stat);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to get Object-Info of object: " + bucket +" / " + key, e);
         }

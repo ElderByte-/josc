@@ -33,15 +33,15 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
     public Stream<Bucket> listBuckets() {
         try {
             return Streams.stream(Files.newDirectoryStream(baseFolder).iterator())
-                .filter(p -> Files.isDirectory(p))
-                .filter(p -> {
-                    try {
-                        return !Files.isHidden(p);
-                    } catch (IOException e) {
-                        return false;
-                    }
-                })
-                .map(f -> new BucketSimple(f.getFileName().toString(), null));
+                    .filter(p -> Files.isDirectory(p))
+                    .filter(p -> {
+                        try {
+                            return !Files.isHidden(p);
+                        } catch (IOException e) {
+                            return false;
+                        }
+                    })
+                    .map(f -> new BucketSimple(f.getFileName().toString(), null));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list buckets!", e);
         }
@@ -109,9 +109,9 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
 
         try {
             return Files.walk(baseDirectory)
-                .filter(p -> Files.isRegularFile(p) &&
-                    (prefix.isEmpty() || p.getFileName().startsWith(prefix)))
-                .map(p -> new PathBlobObject(p, bucketPath.relativize(p).toString()));
+                    .filter(p -> Files.isRegularFile(p) &&
+                            (prefix.isEmpty() || p.getFileName().startsWith(prefix)))
+                    .map(p -> PathBlobObjectBuilder.build(p, bucketPath.relativize(p).toString()));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list objects " + bucket, e);
         }
@@ -123,7 +123,7 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
         try {
             Path objectPath = getObjectPath(bucket, key);
             if(Files.exists(objectPath)){
-                return new PathBlobObject(objectPath, objectPath.relativize(getBucketPath(bucket)).toString());
+                return PathBlobObjectBuilder.build(objectPath, objectPath.relativize(getBucketPath(bucket)).toString());
             }else{
                 throw new FileNotFoundException(objectPath + "(file not found)");
             }

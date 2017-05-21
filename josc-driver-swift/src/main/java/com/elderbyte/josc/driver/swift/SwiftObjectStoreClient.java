@@ -33,8 +33,7 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
 
         try {
             return swiftClient.list().stream()
-                .map(b -> new BucketSimple(b.getName(), LocalDateTime.now())); // TODO get creation date
-                    //, ZoneId.systemDefault()))); // LocalDateTime.ofInstant(b.get().toInstant()
+                .map(b -> SwiftBlobObjectBuilder.build(b));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list buckets!", e);
         }
@@ -84,7 +83,7 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
         try {
             return swiftClient.getContainer(bucket).list(keyPrefix, null, 99999) // TODO Handle pagination
                     .stream()
-                    .map(obj -> new SwiftBlobObject(obj));
+                    .map(obj -> SwiftBlobObjectBuilder.build(obj));
 
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list bucket: "+bucket+" and  prefix: "+keyPrefix+ "!", e);
@@ -117,14 +116,7 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
         try {
 
             StoredObject object = swiftClient.getContainer(bucket).getObject(key);
-
-            return new BlobObjectSimple(
-                key,
-                object.getContentLength(),
-                ZonedDateTime.ofInstant(object.getLastModifiedAsDate().toInstant(),
-                ZoneId.systemDefault()),
-                    object.getEtag()
-            );
+            return SwiftBlobObjectBuilder.build(object);
 
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to get Object-Info of object: " + bucket +" / " + key, e);

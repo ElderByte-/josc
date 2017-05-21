@@ -38,6 +38,11 @@ public interface BlobObject {
      */
     Map<String,String> getMetaData();
 
+    /**
+     * Returns true if this object is actually a directory.
+     */
+    boolean isDirectory();
+
 
     /**
      * Returns the filename of this object.
