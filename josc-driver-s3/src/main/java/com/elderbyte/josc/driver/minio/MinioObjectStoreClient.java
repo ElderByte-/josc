@@ -1,16 +1,11 @@
 package com.elderbyte.josc.driver.minio;
 
-import com.elderbyte.josc.core.BucketSimple;
 import com.elderbyte.josc.api.*;
 import com.elderbyte.josc.core.Streams;
 import io.minio.MinioClient;
 import io.minio.ObjectStat;
-
-
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.stream.Stream;
 
 
@@ -27,8 +22,7 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
     public Stream<Bucket> listBuckets() {
         try {
             return minioClient.listBuckets().stream()
-                .map(b -> new BucketSimple(b.name(),
-                    LocalDateTime.ofInstant(b.creationDate().toInstant(), ZoneId.systemDefault())));
+                .map(b -> MinioBlobObjectBuilder.build(b));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list buckets!", e);
         }

@@ -8,12 +8,12 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import static sun.nio.ch.IOStatus.EOF;
+
 
 public class ChannelUtils {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
-
+    private static final int EOF = -1;
 
     /**
      * Copy the given byte range of the given input to the given output.
