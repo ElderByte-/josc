@@ -73,8 +73,7 @@ public class MinioObjectStoreClient implements ObjectStoreClient {
                     minioClient.listObjects(
                             bucket,
                             keyPrefix,
-                            recursive,
-                            true) // Fallback to listObjectsV1 due to duplicates bug
+                            recursive)
             )
                 .map(res -> {
                     try {
