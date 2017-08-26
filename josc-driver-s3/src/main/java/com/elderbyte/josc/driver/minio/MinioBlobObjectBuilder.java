@@ -19,10 +19,17 @@ class MinioBlobObjectBuilder {
 
         if(minioItem == null) throw new IllegalArgumentException("minioItem was NULL!");
 
+        Date lastModified;
+        try{
+            lastModified = minioItem.lastModified();
+        }catch (Exception e){ // Minio has a bug -> NP Exception possible
+            lastModified = null;
+        }
+
         return new BlobObjectSimple(
                 minioItem.objectName(),
                 minioItem.objectSize(),
-                toZonedDate(minioItem.lastModified()),
+                toZonedDate(lastModified),
                 minioItem.etag(),
                 minioItem.isDir()
         );
@@ -32,11 +39,17 @@ class MinioBlobObjectBuilder {
 
         if(stat == null) throw new IllegalArgumentException("stat was NULL!");
 
+        Date createdTime;
+        try{
+            createdTime = stat.createdTime();
+        }catch (Exception e){ // Minio has a bug -> NP Exception possible
+            createdTime = null;
+        }
 
         return new BlobObjectSimple(
                 stat.name(),
                 stat.length(),
-                toZonedDate(stat.createdTime()),
+                toZonedDate(createdTime),
                 stat.etag(),
                 false
         );
@@ -46,9 +59,16 @@ class MinioBlobObjectBuilder {
 
         if(minioBucket == null) throw new IllegalArgumentException("minioBucket was NULL!");
 
+        Date createdDate;
+        try{
+            createdDate = minioBucket.creationDate();
+        }catch (Exception e){ // Minio has a bug -> NP Exception possible
+            createdDate = null;
+        }
+
         return new BucketSimple(
                 minioBucket.name(),
-                toLocalDate(minioBucket.creationDate()));
+                toLocalDate(createdDate));
     }
 
     private static ZonedDateTime toZonedDate(Date date){
