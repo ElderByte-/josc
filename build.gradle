@@ -6,7 +6,7 @@ task wrapper(type: Wrapper) {
 
 
 allprojects {
-    version =  '0.2.9'
+    version =  '0.2.10'
 
     tasks.withType(Javadoc) {
         // Avoid failing builds because of java-doc errors
