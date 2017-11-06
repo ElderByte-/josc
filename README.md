@@ -29,6 +29,9 @@ Of course, you can implement and register your own drivers. The josc archtecture
 ### How open a Object Store connection
 
 ```java
+
+private final ObjectStoreClientFactory clientFactory = new ObjectStoreClientPool(JoscDriverManager.getDefault());
+
 public ObjectStoreClient openClient() throws ObjectStoreConnectionException {
     Map<String, String> props = new HashMap<>();
     props.put("user", "123412341231234");
