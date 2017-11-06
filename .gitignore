@@ -10,3 +10,6 @@
 
 .idea
 gradle.properties
+*.iml
+
+*/out
