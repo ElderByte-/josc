@@ -32,6 +32,9 @@ public class JoscConnectionString {
      */
     public static JoscConnectionString parse(String connectionString) throws IllegalArgumentException {
 
+        if (connectionString == null) throw new IllegalArgumentException("Argument connectionString must not be null!");
+        if (connectionString.trim().isEmpty()) throw new IllegalArgumentException("Argument connectionString must not be empty!");
+
         Matcher matcher = connectionStringPattern.matcher(connectionString);
 
         if(matcher.matches()){

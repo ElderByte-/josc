@@ -35,4 +35,14 @@ public class JoscConnectionStringTest {
         JoscConnectionString.parse("josc://myserver.com:9000");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullFail(){
+        JoscConnectionString.parse(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testEmptyFail(){
+        JoscConnectionString.parse("");
+    }
+
 }
