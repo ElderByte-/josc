@@ -26,6 +26,21 @@ josc:s3:https://myServer:9000
 
 Of course, you can implement and register your own drivers. The josc archtecture is specifically designed to support custom vendor implementations. 
 
+### How open a Object Store connection
+
+```java
+public ObjectStoreClient openClient() throws ObjectStoreConnectionException {
+    Map<String, String> props = new HashMap<>();
+    props.put("user", "123412341231234");
+    props.put("pass", "abcdefg");
+
+    try {
+        return clientFactory.buildClient("josc:s3:https://myServer.mydomain.com:9000", new JoscConnectionProperties(props));
+    }catch (IllegalArgumentException e){
+        throw new ObjectStoreConnectionException("Could not parse josc connection-string.", e);
+    }
+}
+```
 
 ### Create a custom JOSC driver
 
