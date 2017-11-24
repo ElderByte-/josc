@@ -27,6 +27,6 @@ public class JoscDriverMinio implements JoscDriver {
 
     @Override
     public boolean supports(String protocol, String host, JoscConnectionProperties properties) {
-        return "s3".equalsIgnoreCase(protocol) || "minio".equalsIgnoreCase(protocol);
+        return "minio".equalsIgnoreCase(protocol);
     }
 }
