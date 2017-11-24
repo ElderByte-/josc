@@ -6,7 +6,6 @@ import com.elderbyte.josc.api.BlobObject;
 import com.elderbyte.josc.api.Bucket;
 import com.elderbyte.josc.core.BlobObjectSimple;
 import com.elderbyte.josc.core.BucketSimple;
-import io.minio.messages.Item;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
