@@ -64,6 +64,9 @@ public interface ObjectStoreClient {
      */
     Stream<BlobObject> listBlobObjects(String bucket, String keyPrefix, boolean recursive);
 
+
+    // Single BlobObject access methods
+
     /**
      * Returns the blob object info for the given object-key
      * @param bucket The bucket
