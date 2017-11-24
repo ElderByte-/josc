@@ -1,12 +1,12 @@
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '4.2'
 }
 
 
 allprojects {
-    version =  '0.2.10'
+    version =  '0.2.11'
 
     tasks.withType(Javadoc) {
         // Avoid failing builds because of java-doc errors
