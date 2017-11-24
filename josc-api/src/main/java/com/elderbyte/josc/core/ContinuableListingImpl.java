@@ -12,6 +12,9 @@ public class ContinuableListingImpl<T> implements ContinuableListing<T> {
     private int maxPageSize;
 
     public ContinuableListingImpl(List<T> data, String currentToken, String nextToken, int pageSize){
+
+        if(data == null) throw new IllegalArgumentException("data must not be null");
+
         this.data = data;
         this.continuationToken = currentToken;
         this.nextContinuationToken = nextToken;
