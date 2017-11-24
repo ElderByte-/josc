@@ -23,6 +23,7 @@ public class JoscDriverAwsS3 implements JoscDriver {
                             properties.getRequiredProperty("user"),
                             properties.getRequiredProperty("pass")
                     )))
+                    .withPathStyleAccessEnabled(true)
                     .build();
 
             return new AwsS3ObjectStoreClient(awsS3);
