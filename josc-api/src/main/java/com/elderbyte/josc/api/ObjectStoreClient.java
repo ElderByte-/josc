@@ -38,7 +38,7 @@ public interface ObjectStoreClient {
     /**
      * Creates the given bucket
      */
-    void createBucket(String bucket);
+    Bucket createBucket(String bucket);
 
     /***************************************************************************
      *                                                                         *
@@ -64,6 +64,21 @@ public interface ObjectStoreClient {
      */
     Stream<BlobObject> listBlobObjects(String bucket, String keyPrefix, boolean recursive);
 
+    default ContinuableListing<BlobObject> listBlobObjectsChunked(String bucket, String keyPrefix, boolean recursive, int maxObjects){
+        return listBlobObjectsChunked(bucket, keyPrefix, recursive, maxObjects, null);
+    }
+
+    /**
+     * Returns a listing of blob objects / folders matching the given prefix.
+     * The listing will be paged using contunation tokens.
+     *
+     * @param bucket The bucket
+     * @param keyPrefix The prefix filter (optional)
+     * @param recursive Recursive if true, list all objects, or partition by virtual folders
+     * @param maxObjects Max Objects to return in a page chunk
+     * @param nextContinuationToken The continuation-token to to continue a previous listing.
+     */
+    ContinuableListing<BlobObject> listBlobObjectsChunked(String bucket, String keyPrefix, boolean recursive, int maxObjects, String nextContinuationToken);
 
     // Single BlobObject access methods
 
@@ -97,10 +112,8 @@ public interface ObjectStoreClient {
      * @param bucket The bucket in which to store the object.
      * @param key The bucket relative object name
      * @param objectStream The data stream
-     * @param length The total length of the stream
-     * @param mimeType The content type in mime type format, example: 'video/mp4'
      */
-    void putBlobObject(String bucket, String key, InputStream objectStream, long length, String mimeType);
+    void putBlobObject(String bucket, String key, InputStream objectStream);
 
     /**
      * Deletes the blob object at the given bucket / key.

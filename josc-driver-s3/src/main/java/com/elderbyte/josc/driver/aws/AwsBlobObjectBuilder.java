@@ -1,23 +1,46 @@
 package com.elderbyte.josc.driver.aws;
 
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.elderbyte.josc.api.BlobObject;
 import com.elderbyte.josc.api.Bucket;
+import com.elderbyte.josc.api.ContinuableListing;
 import com.elderbyte.josc.core.BlobObjectSimple;
 import com.elderbyte.josc.core.BucketSimple;
+import com.elderbyte.josc.core.ContinuableListingImpl;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 class AwsBlobObjectBuilder {
 
 
+    static ContinuableListing<BlobObject> buildChunk(ListObjectsV2Result result){
 
-    public static BlobObject build(String key, ObjectMetadata meta) {
+        List<BlobObject> objectList = result.getObjectSummaries().stream()
+                .map(s -> AwsBlobObjectBuilder.build(s))
+                .collect(Collectors.toList());
+
+        List<BlobObject> directories = result.getCommonPrefixes().stream()
+                .map(p -> AwsBlobObjectBuilder.buildDirectory(p))
+                .collect(Collectors.toList());
+
+        directories.addAll(objectList);
+
+        return new ContinuableListingImpl<>(
+                directories,
+                result.getContinuationToken(),
+                result.getNextContinuationToken(),
+                result.getMaxKeys());
+    }
+
+    static BlobObject build(String key, ObjectMetadata meta) {
         if(meta == null) throw new IllegalArgumentException("meta was NULL!");
 
         Date createdTime;

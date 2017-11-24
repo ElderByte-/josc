@@ -1,9 +1,7 @@
 package com.elderbyte.josc.driver.swift;
 
-import com.elderbyte.josc.api.BlobObject;
-import com.elderbyte.josc.api.Bucket;
-import com.elderbyte.josc.api.ObjectStoreClient;
-import com.elderbyte.josc.api.ObjectStoreClientException;
+import com.elderbyte.josc.api.*;
+import com.elderbyte.josc.core.ContinuableListingImpl;
 import org.javaswift.joss.headers.object.range.ExcludeStartRange;
 import org.javaswift.joss.instructions.DownloadInstructions;
 import org.javaswift.joss.model.Account;
@@ -12,12 +10,13 @@ import org.javaswift.joss.model.StoredObject;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 public class SwiftObjectStoreClient implements ObjectStoreClient {
 
-
+    private static final int MAX_KEYS = 9999;
     private final Account swiftClient;
 
     public SwiftObjectStoreClient(Account swiftClient){
@@ -54,9 +53,9 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void createBucket(String bucket) {
+    public Bucket createBucket(String bucket) {
         try {
-            swiftClient.getContainer(bucket).create();
+            return SwiftBlobObjectBuilder.build(swiftClient.getContainer(bucket).create());
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create bucket "+bucket+"!", e);
         }
@@ -76,10 +75,24 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
     @Override
     public Stream<BlobObject> listBlobObjects(String bucket, String keyPrefix, boolean recursive) {
         try {
-            return swiftClient.getContainer(bucket).list(keyPrefix, null, 99999) // TODO Handle pagination
-                    .stream()
-                    .map(obj -> SwiftBlobObjectBuilder.build(obj));
+            // TODO Handle pagination
+            return listBlobObjectsChunked(bucket, keyPrefix, recursive, MAX_KEYS).getContent().stream();
+        }catch (Exception e){
+            throw new ObjectStoreClientException("Failed to list bucket: "+bucket+" and  prefix: "+keyPrefix+ "!", e);
+        }
+    }
 
+    @Override
+    public ContinuableListing<BlobObject> listBlobObjectsChunked(String bucket, String keyPrefix, boolean recursive, int maxObjects, String nextContinuationToken) {
+        try {
+            return new ContinuableListingImpl<>(
+                    swiftClient.getContainer(bucket).list(keyPrefix, nextContinuationToken, maxObjects)
+                            .stream()
+                            .map(obj -> SwiftBlobObjectBuilder.build(obj))
+                            .collect(Collectors.toList()),
+                    null, // TODO Handle pagination / tokens
+                    null,   // TODO Handle pagination / tokens
+                    maxObjects);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list bucket: "+bucket+" and  prefix: "+keyPrefix+ "!", e);
         }
@@ -129,7 +142,7 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void putBlobObject(String bucket, String key, InputStream objectStream, long length, String mimeType){
+    public void putBlobObject(String bucket, String key, InputStream objectStream){
         try {
             swiftClient.getContainer(bucket).getObject(key)
                     .uploadObject(objectStream);
