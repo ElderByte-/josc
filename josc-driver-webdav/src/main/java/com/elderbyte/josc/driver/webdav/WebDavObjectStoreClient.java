@@ -3,6 +3,7 @@ package com.elderbyte.josc.driver.webdav;
 import com.elderbyte.josc.api.*;
 import com.elderbyte.josc.core.BlobObjectSimple;
 import com.elderbyte.josc.core.BucketSimple;
+import com.elderbyte.josc.core.ContinuableListingImpl;
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 
@@ -15,6 +16,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -70,9 +72,13 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void createBucket(String bucket) {
+    public Bucket createBucket(String bucket) {
         try {
             sardine.createDirectory(getBucketUrl(bucket));
+            return new BucketSimple(
+                    bucket,
+                    LocalDateTime.now()
+            );
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create bucket!", e);
         }
@@ -106,6 +112,19 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
         }
 
         return listBlobObjectsDav(rootFolder, filePrefix, recursive, bucket);
+    }
+
+    @Override
+    public ContinuableListing<BlobObject> listBlobObjectsChunked(String bucket, String keyPrefix, boolean recursive, int maxObjects, String nextContinuationToken) {
+
+        // TODO Handle pagination
+
+        return new ContinuableListingImpl<>(
+                listBlobObjects(bucket, keyPrefix, recursive).collect(Collectors.toList()),
+                null,
+                null,
+                maxObjects
+        );
     }
 
     @Override
@@ -146,7 +165,7 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void putBlobObject(String bucket, String key, InputStream objectStream, long length, String mimeType) {
+    public void putBlobObject(String bucket, String key, InputStream objectStream) {
 
         String putUrlStr = getObjectUrl(bucket, key);
         try {
@@ -155,7 +174,7 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
 
             sardine.createDirectory(parent.toString());
 
-            sardine.put(putUrlStr, objectStream, mimeType);
+            sardine.put(putUrlStr, objectStream);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to upload stream to " + putUrlStr, e);
         }

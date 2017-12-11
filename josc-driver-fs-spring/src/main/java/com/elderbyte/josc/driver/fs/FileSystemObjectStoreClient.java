@@ -2,12 +2,15 @@ package com.elderbyte.josc.driver.fs;
 
 import com.elderbyte.josc.core.BucketSimple;
 import com.elderbyte.josc.api.*;
+import com.elderbyte.josc.core.ContinuableListingImpl;
 import com.elderbyte.josc.core.Streams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -64,10 +67,11 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void createBucket(String bucket) {
+    public Bucket createBucket(String bucket) {
         try {
             Path bucketPath = baseFolder.resolve(bucket);
             Files.createDirectories(bucketPath);
+            return new BucketSimple(bucketPath.getFileName().toString(), null);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create bucket " + bucket, e);
         }
@@ -106,15 +110,28 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
         }
 
         final String prefix = filePrefix;
-
+        final Path base = baseDirectory;
         try {
-            return Files.walk(baseDirectory)
-                    .filter(p -> Files.isRegularFile(p) &&
+
+
+            return Files.walk(base, recursive ? Integer.MAX_VALUE : 1)
+                    .filter(p -> !base.equals(p))
+                    .filter(p -> (!recursive || Files.isRegularFile(p)) &&
                             (prefix.isEmpty() || p.getFileName().startsWith(prefix)))
                     .map(p -> PathBlobObjectBuilder.build(p, bucketPath.relativize(p).toString()));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list objects " + bucket, e);
         }
+    }
+
+    @Override
+    public ContinuableListing<BlobObject> listBlobObjectsChunked(String bucket, String keyPrefix, boolean recursive, int maxObjects, String nextContinuationToken) {
+
+        // TODO Support pagination using continuation-tokens
+
+        List<BlobObject> alldata = listBlobObjects(bucket, keyPrefix, recursive)
+                .collect(Collectors.toList());
+        return new ContinuableListingImpl<>(alldata, null, null, alldata.size());
     }
 
 
@@ -152,7 +169,7 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void putBlobObject(String bucket, String key, InputStream objectStream, long length, String mimeType) {
+    public void putBlobObject(String bucket, String key, InputStream objectStream) {
 
         try {
             Path targetPath = getObjectPath(bucket, key);
