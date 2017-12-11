@@ -59,10 +59,12 @@ public class FsObjectController {
         @PathVariable("bucket") String bucket,
         @PathVariable("objectName") String objectName) {
 
-        log.info("Serving stream request...");
+        PathFileReference reference = PathFileReference.parse(account, bucket, objectName);
 
-        StreamResource resource = getStreamResource(account, bucket, objectName)
-                                        .orElseThrow(() -> new IllegalStateException("Could not find or access resource!"));
+        log.info("Serving stream request " + reference);
+
+        StreamResource resource = getStreamResource(reference)
+                                        .orElseThrow(() -> new IllegalStateException("Could not find or access resource: " + reference));
 
         try {
             HttpStreamUtil.sendStream(resource, request, response, false);
@@ -82,10 +84,12 @@ public class FsObjectController {
         @PathVariable("objectName") String objectName) {
 
 
-        log.info("Serving stream request...");
+        PathFileReference reference = PathFileReference.parse(account, bucket, objectName);
 
-        StreamResource resource = getStreamResource(account, bucket, objectName)
-                                        .orElseThrow(() -> new IllegalStateException("Could not find or access resource!"));
+        log.info("Serving stream request " + reference);
+
+        StreamResource resource = getStreamResource(reference)
+                                        .orElseThrow(() -> new IllegalStateException("Could not find or access resource: " + reference));
 
         try {
             HttpStreamUtil.sendStream(resource, request, response, true);
@@ -109,8 +113,11 @@ public class FsObjectController {
         @PathVariable("bucket") String bucket,
         @PathVariable("objectName") String objectName) {
 
-        getStreamResource(account, bucket, objectName);
-        throw new IllegalStateException("Uploading not implemented yet."); // TODO
+
+        PathFileReference reference = PathFileReference.parse(account, bucket, objectName);
+
+        getStreamResource(reference);
+        throw new IllegalStateException("Uploading not implemented yet: " + reference); // TODO
     }
 
 
@@ -121,13 +128,9 @@ public class FsObjectController {
      **************************************************************************/
 
 
-    private Optional<StreamResource> getStreamResource(String accountEncoded, String bucket, String objectNameEncoded){
+    private Optional<StreamResource> getStreamResource(PathFileReference fileReference){
 
-        String basePathStr = new String(Base64.decodeBase64(accountEncoded));
-        Path basePath = Paths.get(basePathStr);
-        String objectName = new String(Base64.decodeBase64(objectNameEncoded));
-
-        Path blobPath = basePath.resolve(bucket).resolve(objectName);
+        Path blobPath = fileReference.getPath();
 
         if(Files.exists(blobPath)){
             return Optional.of(getStreamResource(blobPath));
@@ -145,26 +148,17 @@ public class FsObjectController {
         String mimeType = mimeTypeProvider.guessMimeType(path.toString());
 
         return new StreamResource(
-            name,
-            file.length(),
-            Integer.MAX_VALUE,
-            () -> {
-                try{
-                    return new RandomAccessFile(file, "r").getChannel();
-                }catch (IOException e){
-                    throw new RuntimeException("Failed to open random access input-stream.", e);
-                }
-            },
-            mimeType);
+                name,
+                file.length(),
+                Integer.MAX_VALUE,
+                () -> {
+                    try{
+                        return new RandomAccessFile(file, "r").getChannel();
+                    }catch (IOException e){
+                        throw new RuntimeException("Failed to open random access input-stream.", e);
+                    }
+                },
+                mimeType);
     }
-
-
-
-    public static String getRelativeTempUrl(Path base, String bucket, String objectName){
-        String accoutEnc = Base64.encodeBase64URLSafeString(base.toString().getBytes());
-        String objectNameEnc = Base64.encodeBase64URLSafeString(objectName.getBytes());
-        return String.format("/josc/%s/buckets/%s/%s", accoutEnc, bucket, objectNameEnc);
-    }
-
 
 }

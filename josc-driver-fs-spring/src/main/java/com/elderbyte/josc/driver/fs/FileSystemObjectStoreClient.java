@@ -252,8 +252,8 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
     }
 
     private String getPublicResourceUrl(String bucket, String key){
-        String relativeUrl =  FsObjectController.getRelativeTempUrl(baseFolder, bucket, key);
-        return hostUrl + relativeUrl;
+        PathFileReference reference =  PathFileReference.from(baseFolder, bucket, key);
+        return hostUrl + reference.toRelativeTempUrl();
     }
 
     private Path getBucketPath(String bucket){
