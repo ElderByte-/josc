@@ -86,5 +86,12 @@ public class PathFileReference {
     }
 
 
-
+    @Override
+    public String toString() {
+        return "PathFileReference{" +
+                "base=" + base +
+                ", bucket='" + bucket + '\'' +
+                ", objectName='" + objectName + '\'' +
+                '}';
+    }
 }
