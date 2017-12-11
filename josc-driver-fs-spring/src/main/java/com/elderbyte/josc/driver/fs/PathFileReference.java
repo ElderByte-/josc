@@ -1,10 +1,10 @@
 package com.elderbyte.josc.driver.fs;
 
-import org.apache.tomcat.util.codec.binary.Base64;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 public class PathFileReference {
 
@@ -20,10 +20,11 @@ public class PathFileReference {
         if(bucket == null || bucket.isEmpty()) throw new IllegalArgumentException("bucket: " + bucket);
         if(objectNameEncoded == null || objectNameEncoded.isEmpty()) throw new IllegalArgumentException("objectNameEncoded: " + objectNameEncoded);
 
+
         try {
-            String basePathStr = new String(Base64.decodeBase64(accountEncoded), "UTF8");
+            String basePathStr = new String(Base64.getUrlDecoder().decode(accountEncoded), "UTF8");
             Path basePath = Paths.get(basePathStr);
-            String objectName = new String(Base64.decodeBase64(objectNameEncoded), "UTF8");
+            String objectName = new String(Base64.getUrlDecoder().decode(accountEncoded), "UTF8");
             return new PathFileReference(basePath, bucket, objectName);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("", e);
@@ -77,8 +78,8 @@ public class PathFileReference {
     public String toRelativeTempUrl(){
         String accoutEnc = null;
         try {
-            accoutEnc = Base64.encodeBase64URLSafeString(base.toString().getBytes("UTF8"));
-            String objectNameEnc = Base64.encodeBase64URLSafeString(objectName.getBytes());
+            accoutEnc = Base64.getUrlEncoder().encodeToString(base.toString().getBytes("UTF8"));
+            String objectNameEnc = Base64.getUrlEncoder().encodeToString(objectName.getBytes("UTF8"));
             return String.format("/josc/%s/buckets/%s/%s", accoutEnc, bucket, objectNameEnc);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("", e);
