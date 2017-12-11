@@ -96,6 +96,7 @@ public class PathBlobObjectBuilder {
             return "PathBlobObject{" +
                     "path=" + path +
                     ", key='" + key + '\'' +
+                    ", dir='" + isDirectory() + '\'' +
                     '}';
         }
     }

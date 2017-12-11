@@ -110,10 +110,13 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
         }
 
         final String prefix = filePrefix;
-
+        final Path base = baseDirectory;
         try {
-            return Files.walk(baseDirectory)
-                    .filter(p -> Files.isRegularFile(p) &&
+
+
+            return Files.walk(base, recursive ? Integer.MAX_VALUE : 1)
+                    .filter(p -> !base.equals(p))
+                    .filter(p -> (!recursive || Files.isRegularFile(p)) &&
                             (prefix.isEmpty() || p.getFileName().startsWith(prefix)))
                     .map(p -> PathBlobObjectBuilder.build(p, bucketPath.relativize(p).toString()));
         }catch (Exception e){
