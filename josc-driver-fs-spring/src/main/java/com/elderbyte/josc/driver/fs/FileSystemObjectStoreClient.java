@@ -18,10 +18,22 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class FileSystemObjectStoreClient implements ObjectStoreClient {
 
+    /***************************************************************************
+     *                                                                         *
+     * Fields                                                                  *
+     *                                                                         *
+     **************************************************************************/
+
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Path baseFolder;
     private final String hostUrl;
 
+    /***************************************************************************
+     *                                                                         *
+     * Constructor                                                             *
+     *                                                                         *
+     **************************************************************************/
 
     public FileSystemObjectStoreClient(Path baseFolder, String hostUrl){
         if(baseFolder == null) throw new IllegalArgumentException("baseFolder");
@@ -31,6 +43,11 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
         this.hostUrl = hostUrl;
     }
 
+    /***************************************************************************
+     *                                                                         *
+     * Public API                                                              *
+     *                                                                         *
+     **************************************************************************/
 
     @Override
     public Stream<Bucket> listBuckets() {
@@ -112,17 +129,16 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
         final String prefix = filePrefix;
         final Path base = baseDirectory;
         try {
-
-
             return Files.walk(base, recursive ? Integer.MAX_VALUE : 1)
                     .filter(p -> !base.equals(p))
                     .filter(p -> (!recursive || Files.isRegularFile(p)) &&
                             (prefix.isEmpty() || p.getFileName().startsWith(prefix)))
-                    .map(p -> PathBlobObjectBuilder.build(p, bucketPath.relativize(p).toString()));
+                    .map(p -> PathBlobObjectBuilder.from(p, bucketPath));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list objects " + bucket, e);
         }
     }
+
 
     @Override
     public ContinuableListing<BlobObject> listBlobObjectsChunked(String bucket, String keyPrefix, boolean recursive, int maxObjects, String nextContinuationToken) {
@@ -140,7 +156,7 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
         try {
             Path objectPath = getObjectPath(bucket, key);
             if(Files.exists(objectPath)){
-                return PathBlobObjectBuilder.build(objectPath, objectPath.relativize(getBucketPath(bucket)).toString());
+                return PathBlobObjectBuilder.from(objectPath, getBucketPath(bucket));
             }else{
                 throw new FileNotFoundException(objectPath + "(file not found)");
             }
@@ -246,6 +262,11 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
         return getPublicResourceUrl(bucket, key);
     }
 
+    /***************************************************************************
+     *                                                                         *
+     * Private methods                                                         *
+     *                                                                         *
+     **************************************************************************/
 
     private String getSignedResourceUrl(String bucket, String key){
         return getPublicResourceUrl(bucket, key); // TODO Sign the url

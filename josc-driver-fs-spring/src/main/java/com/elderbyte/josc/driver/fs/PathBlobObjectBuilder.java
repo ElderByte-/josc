@@ -14,8 +14,18 @@ import java.util.Map;
 
 public class PathBlobObjectBuilder {
 
-    public static BlobObject build(Path path, String key) {
-        return new PathBlobObject(path, key);
+    /**
+     * Build a blob-object for a given path
+     * @param path The absolute path
+     * @param bucketPath The base bucket path
+     * @return A blob object abstraction
+     */
+    public static BlobObject from(Path path, Path bucketPath){
+
+        if (path == null) throw new IllegalArgumentException("path must not be null");
+        if (bucketPath == null) throw new IllegalArgumentException("bucketPath must not be null");
+
+        return new PathBlobObject(path, PathRelativizer.relativize(path, bucketPath).toString());
     }
 
     static class PathBlobObject implements BlobObject {
@@ -37,10 +47,10 @@ public class PathBlobObjectBuilder {
         /**
          * Creates a new PathBlobObjectBuilder
          */
-        public PathBlobObject(Path path, String key) {
+        PathBlobObject(Path path, String key) {
 
             if (path == null) throw new IllegalArgumentException("path");
-            if (key == null) throw new IllegalArgumentException("key");
+            if (key == null || key.isEmpty()) throw new IllegalArgumentException("key: " + key);
 
             this.path = path;
             this.key = key;
