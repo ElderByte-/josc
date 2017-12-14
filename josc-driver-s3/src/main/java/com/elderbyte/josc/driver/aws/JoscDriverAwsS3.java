@@ -19,18 +19,18 @@ public class JoscDriverAwsS3 implements JoscDriver {
     public ObjectStoreClient openConnection(String host, JoscConnectionProperties properties) throws ObjectStoreConnectionException {
         try {
 
-            ClientConfiguration clientConfiguration = new ClientConfiguration();
-            clientConfiguration.setSignerOverride("AWSS3V4SignerType");
+            //ClientConfiguration clientConfiguration = new ClientConfiguration();
+            //clientConfiguration.setSignerOverride("AWSS3V4SignerType");
 
             AmazonS3 awsS3 = AmazonS3ClientBuilder
                     .standard()
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(host, Regions.US_EAST_1.name()))
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(host, "us-east-1"))
                     .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(
                             properties.getRequiredProperty("user"),
                             properties.getRequiredProperty("pass")
                     )))
                     .withChunkedEncodingDisabled(true)
-                    .withClientConfiguration(clientConfiguration)
+                    //.withClientConfiguration(clientConfiguration)
                     .withPathStyleAccessEnabled(true)
                     .build();
 
