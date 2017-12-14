@@ -1,8 +1,10 @@
 package com.elderbyte.josc.driver.aws;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.elderbyte.josc.api.JoscConnectionProperties;
@@ -14,15 +16,19 @@ public class JoscDriverAwsS3 implements JoscDriver {
 
     @Override
     public ObjectStoreClient openConnection(String host, JoscConnectionProperties properties) throws ObjectStoreConnectionException {
-
-
         try {
-            AmazonS3 awsS3 = AmazonS3ClientBuilder.standard()
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(host, "us-east-1"))
+
+            ClientConfiguration clientConfiguration = new ClientConfiguration();
+            clientConfiguration.setSignerOverride("AWSS3V4SignerType");
+
+            AmazonS3 awsS3 = AmazonS3ClientBuilder
+                    .standard()
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(host, Regions.US_EAST_1.name()))
                     .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(
                             properties.getRequiredProperty("user"),
                             properties.getRequiredProperty("pass")
                     )))
+                    .withClientConfiguration(clientConfiguration)
                     .withPathStyleAccessEnabled(true)
                     .build();
 
