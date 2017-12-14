@@ -7,6 +7,7 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.internal.AWSS3V4Signer;
 import com.elderbyte.josc.api.JoscConnectionProperties;
 import com.elderbyte.josc.api.JoscDriver;
 import com.elderbyte.josc.api.ObjectStoreClient;
@@ -28,6 +29,7 @@ public class JoscDriverAwsS3 implements JoscDriver {
                             properties.getRequiredProperty("user"),
                             properties.getRequiredProperty("pass")
                     )))
+                    .withChunkedEncodingDisabled(true)
                     .withClientConfiguration(clientConfiguration)
                     .withPathStyleAccessEnabled(true)
                     .build();
