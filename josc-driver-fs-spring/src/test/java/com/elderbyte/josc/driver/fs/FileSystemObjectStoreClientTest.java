@@ -67,5 +67,17 @@ public class FileSystemObjectStoreClientTest {
 
         Assert.assertEquals(7, objects.size());
     }
+
+    @Test
+    public void listBlobObjectsSpacesNotRecursive() {
+
+
+        List<BlobObject> objects =  localClient.listBlobObjects("Movies", "Series/Rick", false)
+                .collect(Collectors.toList());
+
+        Assert.assertEquals(7, objects.size());
+    }
+
     */
+
 }
