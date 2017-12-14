@@ -4,10 +4,8 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.internal.AWSS3V4Signer;
 import com.elderbyte.josc.api.JoscConnectionProperties;
 import com.elderbyte.josc.api.JoscDriver;
 import com.elderbyte.josc.api.ObjectStoreClient;
@@ -19,8 +17,8 @@ public class JoscDriverAwsS3 implements JoscDriver {
     public ObjectStoreClient openConnection(String host, JoscConnectionProperties properties) throws ObjectStoreConnectionException {
         try {
 
-            //ClientConfiguration clientConfiguration = new ClientConfiguration();
-            //clientConfiguration.setSignerOverride("AWSS3V4SignerType");
+            ClientConfiguration clientConfiguration = new ClientConfiguration();
+            clientConfiguration.setSignerOverride("AWSS3V4SignerType");
 
             AmazonS3 awsS3 = AmazonS3ClientBuilder
                     .standard()
@@ -30,7 +28,7 @@ public class JoscDriverAwsS3 implements JoscDriver {
                             properties.getRequiredProperty("pass")
                     )))
                     .withChunkedEncodingDisabled(true)
-                    //.withClientConfiguration(clientConfiguration)
+                    .withClientConfiguration(clientConfiguration)
                     .withPathStyleAccessEnabled(true)
                     .build();
 
