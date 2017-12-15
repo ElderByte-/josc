@@ -16,7 +16,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -25,15 +27,15 @@ class AwsBlobObjectBuilder {
 
     static ContinuableListing<BlobObject> buildChunk(ListObjectsV2Response result){
 
+        if(result == null) throw new IllegalArgumentException("result was NULL!");
 
-
-        List<BlobObject> objectList = result.contents().stream()
+        List<BlobObject> objectList = result.contents() != null ? result.contents().stream()
                 .map(s -> AwsBlobObjectBuilder.build(s))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()) : new ArrayList<>();
 
-        List<BlobObject> directories = result.commonPrefixes().stream()
+        List<BlobObject> directories = result.commonPrefixes() != null ? result.commonPrefixes().stream()
                 .map(p -> AwsBlobObjectBuilder.buildDirectory(p))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()) : new ArrayList<>();
 
         directories.addAll(objectList);
 
@@ -41,7 +43,7 @@ class AwsBlobObjectBuilder {
                 directories,
                 result.continuationToken(),
                 result.nextContinuationToken(),
-                result.maxKeys());
+                Optional.ofNullable(result.maxKeys()).orElse(0));
     }
 
     static BlobObject build(String key, HeadObjectResponse meta) {
@@ -56,7 +58,7 @@ class AwsBlobObjectBuilder {
 
         return new BlobObjectSimple(
                 key,
-                meta.contentLength(),
+                Optional.ofNullable(meta.contentLength()).orElse(0L),
                 toZonedDate(createdTime),
                 meta.eTag(),
                 false
@@ -76,7 +78,7 @@ class AwsBlobObjectBuilder {
 
         return new BlobObjectSimple(
                 summary.key(),
-                summary.size(),
+                Optional.ofNullable(summary.size()).orElse(0L),
                 toZonedDate(createdTime),
                 summary.eTag(),
                 false
