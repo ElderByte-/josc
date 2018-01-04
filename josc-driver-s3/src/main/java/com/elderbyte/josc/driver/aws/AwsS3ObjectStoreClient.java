@@ -4,12 +4,17 @@ import com.elderbyte.josc.api.*;
 import com.elderbyte.josc.api.Bucket;
 import com.elderbyte.josc.core.BucketSimple;
 import io.minio.MinioClient;
+import io.minio.errors.*;
+import org.xmlpull.v1.XmlPullParserException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -166,16 +171,24 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(key);
 
         try {
-            return s3client.getObject(GetObjectRequest.builder().bucket(bucket).key(key).build());
+            return s3client.getObject(
+                    GetObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(key)
+                            .build()
+            );
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to getBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
-
     }
 
     @Override
     public InputStream getBlobObject(String bucket, String key, long offset) {
-        throw new IllegalStateException("getBlobObject - with range - Not yet supported!");
+        try {
+            return minioClient.getObject(bucket, key, 0); // TODO Switch to aws sdk
+        } catch (Exception e) {
+            throw new ObjectStoreClientException("Failed to getBlobObject: + bucket: " + bucket + ", key:" + key, e);
+        }
     }
 
     @Override
