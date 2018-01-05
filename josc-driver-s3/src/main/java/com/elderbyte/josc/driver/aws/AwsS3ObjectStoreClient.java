@@ -171,12 +171,14 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(key);
 
         try {
+            return minioClient.getObject(bucket, key);
+            /* // TODO Switch to aws sdk (currently broken in preview)
             return s3client.getObject(
                     GetObjectRequest.builder()
                             .bucket(bucket)
                             .key(key)
                             .build()
-            );
+            );*/
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to getBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
@@ -185,7 +187,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
     @Override
     public InputStream getBlobObject(String bucket, String key, long offset) {
         try {
-            return minioClient.getObject(bucket, key, 0); // TODO Switch to aws sdk
+            return minioClient.getObject(bucket, key, offset); // TODO Switch to aws sdk
         } catch (Exception e) {
             throw new ObjectStoreClientException("Failed to getBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
