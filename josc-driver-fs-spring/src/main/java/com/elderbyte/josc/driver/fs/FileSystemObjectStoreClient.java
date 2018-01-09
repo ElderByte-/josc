@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.*;
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,7 +25,6 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
      * Fields                                                                  *
      *                                                                         *
      **************************************************************************/
-
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Path baseFolder;
@@ -185,7 +186,7 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void putBlobObject(String bucket, String key, InputStream objectStream) {
+    public void putBlobObject(String bucket, String key, InputStream objectStream, long length) {
 
         try {
             Path targetPath = getObjectPath(bucket, key);
@@ -248,12 +249,12 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public String getTempGETUrl(String bucket, String key) {
+    public String getTempGETUrl(String bucket, String key, Duration duration) {
         return getSignedResourceUrl(bucket, key);
     }
 
     @Override
-    public String getTempPUTUrl(String bucket, String key) {
+    public String getTempPUTUrl(String bucket, String key, Duration duration) {
         return getSignedResourceUrl(bucket, key);
     }
 

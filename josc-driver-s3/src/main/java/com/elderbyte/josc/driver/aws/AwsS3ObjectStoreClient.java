@@ -8,6 +8,7 @@ import com.elderbyte.josc.api.Bucket;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -186,14 +187,16 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void putBlobObject(String bucket, String key, InputStream objectStream) {
+    public void putBlobObject(String bucket, String key, InputStream objectStream, long length) {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
+
         if(objectStream == null) throw new IllegalArgumentException("objectStream must not be null!");
 
-
         try {
-            s3client.putObject(bucket, key, objectStream, new ObjectMetadata());
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(length);
+            s3client.putObject(bucket, key, objectStream, metadata);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to putBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
@@ -228,24 +231,24 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public String getTempGETUrl(String bucket, String key) {
+    public String getTempGETUrl(String bucket, String key, Duration expires) {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
 
         try {
-            return s3client.generatePresignedUrl(bucket, key, expirationDate(), HttpMethod.GET).toString();
+            return s3client.generatePresignedUrl(bucket, key, expiresIn(expires), HttpMethod.GET).toString();
         }catch (Exception e){
             throw new ObjectStoreClientException("getTempGETUrl failed! bucket: " + bucket + ", key:" + key, e);
         }
     }
 
     @Override
-    public String getTempPUTUrl(String bucket, String key) {
+    public String getTempPUTUrl(String bucket, String key, Duration expires) {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
 
         try {
-            return s3client.generatePresignedUrl(bucket, key, expirationDate(), HttpMethod.PUT).toString();
+            return s3client.generatePresignedUrl(bucket, key, expiresIn(expires), HttpMethod.PUT).toString();
         }catch (Exception e){
             throw new ObjectStoreClientException("getTempPUTUrl failed! bucket: " + bucket + ", key:" + key, e);
         }
@@ -263,8 +266,8 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         }
     }
 
-    private Date expirationDate(){
-        LocalDateTime now = LocalDateTime.now().plus(1, ChronoUnit.DAYS);
+    private Date expiresIn(Duration duration){
+        LocalDateTime now = LocalDateTime.now().plus(duration);
         return Date.from(now.toInstant(ZoneOffset.UTC));
     }
 

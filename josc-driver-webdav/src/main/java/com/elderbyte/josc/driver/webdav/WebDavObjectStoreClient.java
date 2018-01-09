@@ -13,9 +13,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -165,7 +167,7 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void putBlobObject(String bucket, String key, InputStream objectStream) {
+    public void putBlobObject(String bucket, String key, InputStream objectStream, long length) {
 
         String putUrlStr = getObjectUrl(bucket, key);
         try {
@@ -199,13 +201,13 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public String getTempGETUrl(String bucket, String key) {
+    public String getTempGETUrl(String bucket, String key, Duration temporalAmount) {
         String url = getObjectUrl(bucket, key);
         return preAuthorize(url);
     }
 
     @Override
-    public String getTempPUTUrl(String bucket, String key) {
+    public String getTempPUTUrl(String bucket, String key, Duration temporalAmount) {
         String url = getObjectUrl(bucket, key);
         return preAuthorize(url);
     }

@@ -3,6 +3,8 @@ package com.elderbyte.josc.api;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
 import java.util.stream.Stream;
 
 /**
@@ -12,6 +14,8 @@ import java.util.stream.Stream;
  * @see ObjectStoreClientException
  */
 public interface ObjectStoreClient {
+
+    Duration DEFAULT_EXPIRI = Duration.ofDays(7);
 
 
     /***************************************************************************
@@ -113,7 +117,7 @@ public interface ObjectStoreClient {
      * @param key The bucket relative object name
      * @param objectStream The data stream
      */
-    void putBlobObject(String bucket, String key, InputStream objectStream);
+    void putBlobObject(String bucket, String key, InputStream objectStream, long length);
 
     /**
      * Deletes the blob object at the given bucket / key.
@@ -138,13 +142,43 @@ public interface ObjectStoreClient {
 
     /**
      * Returns a direct and signed URL to this blob store which will return the given object.
+     * @param bucket The bucket
+     * @param key The object key
+     * @param expireIn Amount of time after the url will be invalid
+     * @return A signed url for GET
      */
-    String getTempGETUrl(String bucket, String key);
+    String getTempGETUrl(String bucket, String key, Duration expireIn);
+
+    /**
+     * Returns a direct and signed URL to this blob store which will return the given object.
+     * The url will have a default expiration time of 1 day.
+     * @param bucket The bucket
+     * @param key The object key
+     * @return A signed url
+     */
+    default String getTempGETUrl(String bucket, String key){
+        return getTempGETUrl(bucket, key, DEFAULT_EXPIRI);
+    }
 
     /**
      * Returns a direct and signed URL to this blob store to which a new object can be uploaded.
+     * @param bucket The bucket
+     * @param key The object key
+     * @param expireIn Amount of time after the url will be invalid
+     * @return A signed url for PUT
      */
-    String getTempPUTUrl(String bucket, String key);
+    String getTempPUTUrl(String bucket, String key, Duration expireIn);
+
+    /**
+     * Returns a direct and signed URL to this blob store to which a new object can be uploaded.
+     * The url will have a default expiration time of 1 day.
+     * @param bucket The bucket
+     * @param key The object key
+     * @return A signed url for PUT
+     */
+    default String getTempPUTUrl(String bucket, String key){
+        return getTempGETUrl(bucket, key, DEFAULT_EXPIRI);
+    }
 
     /**
      * Returns a direct url to this blob without any signing.

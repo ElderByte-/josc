@@ -10,6 +10,9 @@ import org.javaswift.joss.model.StoredObject;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -142,7 +145,7 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public void putBlobObject(String bucket, String key, InputStream objectStream){
+    public void putBlobObject(String bucket, String key, InputStream objectStream, long length){
         try {
             swiftClient.getContainer(bucket).getObject(key)
                     .uploadObject(objectStream);
@@ -161,18 +164,18 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public String getTempGETUrl(String bucket, String key) {
+    public String getTempGETUrl(String bucket, String key, Duration duration) {
         try {
-            return swiftClient.getContainer(bucket).getObject(key).getTempGetUrl(3600 * 24);
+            return swiftClient.getContainer(bucket).getObject(key).getTempGetUrl(duration.get(ChronoUnit.SECONDS));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create presigned GetObject url " + bucket + " : " + key, e);
         }
     }
 
     @Override
-    public String getTempPUTUrl(String bucket, String key) {
+    public String getTempPUTUrl(String bucket, String key, Duration duration) {
         try {
-            return swiftClient.getContainer(bucket).getObject(key).getTempPutUrl(3600 * 24);
+            return swiftClient.getContainer(bucket).getObject(key).getTempPutUrl(duration.get(ChronoUnit.SECONDS));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create presigned PutObject " + bucket + " : " + key, e);
         }
