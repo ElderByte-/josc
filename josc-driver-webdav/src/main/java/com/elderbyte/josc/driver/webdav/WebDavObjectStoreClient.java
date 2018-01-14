@@ -24,10 +24,6 @@ import java.util.stream.Stream;
 
 public class WebDavObjectStoreClient implements ObjectStoreClient {
 
-
-    private static final TemporalAmount DEFAULT_EXPIRI = Duration.ofDays(1);
-
-
     private final Sardine sardine;
     private final String baseUrl;
     private final String account;
@@ -204,25 +200,15 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
         }
     }
 
-    @Override
-    public String getTempGETUrl(String bucket, String key) {
-        return getTempGETUrl(bucket, key, DEFAULT_EXPIRI);
-    }
 
     @Override
-    public String getTempGETUrl(String bucket, String key, TemporalAmount temporalAmount) {
+    public String getTempGETUrl(String bucket, String key, Duration temporalAmount) {
         String url = getObjectUrl(bucket, key);
         return preAuthorize(url);
     }
 
     @Override
-    public String getTempPUTUrl(String bucket, String key) {
-
-        return getTempPUTUrl(bucket, key, DEFAULT_EXPIRI);
-    }
-
-    @Override
-    public String getTempPUTUrl(String bucket, String key, TemporalAmount temporalAmount) {
+    public String getTempPUTUrl(String bucket, String key, Duration temporalAmount) {
         String url = getObjectUrl(bucket, key);
         return preAuthorize(url);
     }

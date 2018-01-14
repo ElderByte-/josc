@@ -4,22 +4,16 @@ import com.elderbyte.josc.api.*;
 import com.elderbyte.josc.api.Bucket;
 import com.elderbyte.josc.core.BucketSimple;
 import io.minio.MinioClient;
-import io.minio.errors.*;
-import org.xmlpull.v1.XmlPullParserException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,8 +24,6 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
     private static final int MAX_KEYS = 1000;
     private final S3Client s3client;
     private final MinioClient minioClient;
-
-    private static final TemporalAmount DEFAULT_EXPIRI = Duration.ofDays(1);
 
 
     public AwsS3ObjectStoreClient(S3Client s3client, MinioClient minioClient){
@@ -224,7 +216,6 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
 
-
         try {
             s3client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
         }catch (Exception e){
@@ -253,12 +244,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public String getTempGETUrl(String bucket, String key) {
-        return getTempGETUrl(bucket, key, DEFAULT_EXPIRI);
-    }
-
-    @Override
-    public String getTempGETUrl(String bucket, String key, TemporalAmount temporalAmount) {
+    public String getTempGETUrl(String bucket, String key, Duration temporalAmount) {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
 
@@ -271,12 +257,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public String getTempPUTUrl(String bucket, String key) {
-        return getTempPUTUrl(bucket, key, DEFAULT_EXPIRI);
-    }
-
-    @Override
-    public String getTempPUTUrl(String bucket, String key, TemporalAmount temporalAmount) {
+    public String getTempPUTUrl(String bucket, String key, Duration temporalAmount) {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
 
@@ -300,8 +281,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
     }
 
 
-
-    private Date toDateFromNow(TemporalAmount temporalAmount){
+    private Date toDateFromNow(Duration temporalAmount){
         LocalDateTime now = LocalDateTime.now().plus(temporalAmount);
         return Date.from(now.toInstant(ZoneOffset.UTC));
     }

@@ -21,7 +21,6 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
 
     private static final int MAX_KEYS = 9999;
     private final Account swiftClient;
-    private static final TemporalAmount DEFAULT_EXPIRI = Duration.ofDays(1);
 
     public SwiftObjectStoreClient(Account swiftClient){
         this.swiftClient = swiftClient;
@@ -165,29 +164,18 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public String getTempGETUrl(String bucket, String key) {
-        return getTempGETUrl(bucket, key, DEFAULT_EXPIRI);
-    }
-
-    @Override
-    public String getTempGETUrl(String bucket, String key, TemporalAmount temporalAmount) {
+    public String getTempGETUrl(String bucket, String key, Duration expiry) {
         try {
-            return swiftClient.getContainer(bucket).getObject(key).getTempGetUrl(temporalAmount.get(ChronoUnit.SECONDS));
+            return swiftClient.getContainer(bucket).getObject(key).getTempGetUrl(expiry.get(ChronoUnit.SECONDS));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create presigned GetObject url " + bucket + " : " + key, e);
         }
     }
 
-
     @Override
-    public String getTempPUTUrl(String bucket, String key) {
-        return getTempPUTUrl(bucket, key, DEFAULT_EXPIRI);
-    }
-
-    @Override
-    public String getTempPUTUrl(String bucket, String key, TemporalAmount temporalAmount) {
+    public String getTempPUTUrl(String bucket, String key, Duration expiry) {
         try {
-            return swiftClient.getContainer(bucket).getObject(key).getTempPutUrl(temporalAmount.get(ChronoUnit.SECONDS));
+            return swiftClient.getContainer(bucket).getObject(key).getTempPutUrl(expiry.get(ChronoUnit.SECONDS));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create presigned PutObject " + bucket + " : " + key, e);
         }

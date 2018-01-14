@@ -3,7 +3,7 @@ package com.elderbyte.josc.api;
 
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.time.temporal.TemporalAmount;
+import java.time.Duration;
 import java.util.stream.Stream;
 
 /**
@@ -13,6 +13,8 @@ import java.util.stream.Stream;
  * @see ObjectStoreClientException
  */
 public interface ObjectStoreClient {
+
+    Duration DEFAULT_EXPIRI = Duration.ofDays(7);
 
 
     /***************************************************************************
@@ -144,7 +146,7 @@ public interface ObjectStoreClient {
      * @param expireIn Amount of time after the url will be invalid
      * @return A signed url for GET
      */
-    String getTempGETUrl(String bucket, String key, TemporalAmount expireIn);
+    String getTempGETUrl(String bucket, String key, Duration expireIn);
 
     /**
      * Returns a direct and signed URL to this blob store which will return the given object.
@@ -153,7 +155,9 @@ public interface ObjectStoreClient {
      * @param key The object key
      * @return A signed url
      */
-    String getTempGETUrl(String bucket, String key);
+    default String getTempGETUrl(String bucket, String key){
+        return getTempGETUrl(bucket, key, DEFAULT_EXPIRI);
+    }
 
     /**
      * Returns a direct and signed URL to this blob store to which a new object can be uploaded.
@@ -162,7 +166,7 @@ public interface ObjectStoreClient {
      * @param expireIn Amount of time after the url will be invalid
      * @return A signed url for PUT
      */
-    String getTempPUTUrl(String bucket, String key, TemporalAmount expireIn);
+    String getTempPUTUrl(String bucket, String key, Duration expireIn);
 
     /**
      * Returns a direct and signed URL to this blob store to which a new object can be uploaded.
@@ -171,7 +175,9 @@ public interface ObjectStoreClient {
      * @param key The object key
      * @return A signed url for PUT
      */
-    String getTempPUTUrl(String bucket, String key);
+    default String getTempPUTUrl(String bucket, String key){
+        return getTempGETUrl(bucket, key, DEFAULT_EXPIRI);
+    }
 
     /**
      * Returns a direct url to this blob without any signing.
