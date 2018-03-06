@@ -23,8 +23,8 @@ dependencies {
 
     // S3 / aws client
     //compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.248'
-    compile 'software.amazon.awssdk:s3:2.0.0-preview-7'
-    compile 'io.minio:minio:3.0.10'
+    compile 'software.amazon.awssdk:s3:2.0.0-preview-8'
+    compile 'io.minio:minio:3.0.12'
 
     // Test dependencies
     testCompile group: 'junit', name: 'junit', version: '4.12'
