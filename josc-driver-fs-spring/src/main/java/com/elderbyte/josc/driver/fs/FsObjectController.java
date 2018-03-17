@@ -8,6 +8,8 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,8 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
 import java.util.Optional;
 
 /**
@@ -107,17 +111,24 @@ public class FsObjectController {
     @PermitAll
     @RequestMapping(method = RequestMethod.PUT)
     public void putBlobObject(
-        HttpServletRequest request,
-        HttpServletResponse response,
+        HttpEntity<byte[]> requestEntity,
         @PathVariable("account") String account,
         @PathVariable("bucket") String bucket,
         @PathVariable("objectName") String objectName) {
 
-
         PathFileReference reference = PathFileReference.parse(account, bucket, objectName);
+        Path outFile = reference.getPath();
 
-        getStreamResource(reference);
-        throw new IllegalStateException("Uploading not implemented yet: " + reference); // TODO
+        if(requestEntity.hasBody()){
+            try {
+                Files.write(outFile, requestEntity.getBody());
+            } catch (IOException e) {
+                log.error("Failed to write uploaded data to file! " + reference, e);
+            }
+        }else{
+            log.warn("There was no request body sent / no data for the file! " + reference);
+        }
+
     }
 
 
