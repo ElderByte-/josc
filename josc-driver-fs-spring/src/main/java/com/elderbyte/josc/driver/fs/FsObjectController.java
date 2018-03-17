@@ -121,6 +121,7 @@ public class FsObjectController {
 
         if(requestEntity.hasBody()){
             try {
+                Files.createDirectories(outFile.getParent());
                 Files.write(outFile, requestEntity.getBody());
             } catch (IOException e) {
                 log.error("Failed to write uploaded data to file! " + reference, e);
@@ -128,7 +129,6 @@ public class FsObjectController {
         }else{
             log.warn("There was no request body sent / no data for the file! " + reference);
         }
-
     }
 
 
