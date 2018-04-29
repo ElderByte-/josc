@@ -1,1 +1,3 @@
+
+# Auto configuration
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.elderbyte.josc.driver.fs.config.JoscFsDriverAutoConfiguration

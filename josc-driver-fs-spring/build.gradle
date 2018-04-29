@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        mavenCentral()
         jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -10,36 +10,13 @@ buildscript {
 }
 
 apply plugin: 'com.jfrog.bintray'
-
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: 'maven-publish'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'maven-publish'
 
 
-
-repositories {
-    mavenCentral()
-}
-
-compileJava {
-    sourceCompatibility = 10
-    options.encoding = "UTF-8"
-}
-
-dependencies {
-
-    compile project(':josc-api')
-
-    compile("org.springframework.boot:spring-boot-starter")
-    compile("org.springframework.boot:spring-boot-starter-web")
-
-    // Test dependencies
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile("junit:junit")
-}
 
 jar {
     enabled = true
@@ -52,9 +29,29 @@ bootJar {
 
 
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+compileJava {
+    sourceCompatibility = 10
+    targetCompatibility = 10
+
+    options.encoding = "UTF-8"
+}
+
+repositories {
+    mavenCentral()
+    maven { url "http://dl.bintray.com/elderbyte/maven" }
+}
+
+dependencies {
+
+    compile project(':josc-api')
+
+    // Spring
+    compile("org.springframework.boot:spring-boot-starter")
+    compile("org.springframework.boot:spring-boot-starter-web")
+
+    // Test dependencies
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile("junit:junit")
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -62,9 +59,13 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
 artifacts {
-    archives sourcesJar
-    archives javadocJar
+    archives sourcesJar, javadocJar
 }
 
 publishing {
@@ -77,10 +78,6 @@ publishing {
             artifact javadocJar
         }
     }
-}
-
-task upload {
-    dependsOn bintrayUpload
 }
 
 bintray {
@@ -102,4 +99,8 @@ bintray {
             name = project.version //Bintray logical version name
         }
     }
+}
+
+task upload {
+    dependsOn bintrayUpload
 }
