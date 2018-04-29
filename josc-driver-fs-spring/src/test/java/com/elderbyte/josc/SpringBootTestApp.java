@@ -11,13 +11,13 @@ import java.net.UnknownHostException;
  * Created by isnull on 28.03.17.
  */
 @SpringBootApplication
-public class SpringApp {
+public class SpringBootTestApp {
 
     /**
      * Main method, used to run the application.
      */
     public static void main(String[] args) throws UnknownHostException, SocketException {
-        SpringApplication app = new SpringApplication(SpringApp.class);
+        SpringApplication app = new SpringApplication(SpringBootTestApp.class);
 
         // Check if the selected profile has been set as argument.
         // if not the development profile will be added
