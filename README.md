@@ -1,5 +1,5 @@
-
-[ ![Download](https://api.bintray.com/packages/elderbyte/maven/josc-full/images/download.svg) ](https://bintray.com/elderbyte/maven/josc-full/_latestVersion)
+[![CircleCI](https://circleci.com/gh/ElderByte-/josc.svg?style=svg)](https://circleci.com/gh/ElderByte-/josc)
+[![Download](https://api.bintray.com/packages/elderbyte/maven/josc-full/images/download.svg) ](https://bintray.com/elderbyte/maven/josc-full/_latestVersion)
 
 # josc
 Java Object Store Connectivity - Provides a client abstraction to several Object / Blob Stores such as S3, OpenStack Swift etc. At its core, josc defines a (simple) Object Store Client API as a set of Interfaces and base classes.
