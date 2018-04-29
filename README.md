@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/ElderByte-/josc.svg?branch=master)](https://travis-ci.org/ElderByte-/josc)
 
 [ ![Download](https://api.bintray.com/packages/elderbyte/maven/josc-full/images/download.svg) ](https://bintray.com/elderbyte/maven/josc-full/_latestVersion)
 
