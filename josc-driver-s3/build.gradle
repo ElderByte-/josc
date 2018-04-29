@@ -1,5 +1,5 @@
 plugins {
-    id "com.jfrog.bintray" version "1.6"
+    id "com.jfrog.bintray" version "1.8.0"
 }
 
 apply plugin: 'java'
@@ -13,8 +13,8 @@ repositories {
 }
 
 compileJava {
-    sourceCompatibility = 9
-    targetCompatibility = 9
+    sourceCompatibility = 10
+    targetCompatibility = 10
 }
 
 dependencies {
@@ -22,8 +22,7 @@ dependencies {
     compile project(':josc-api')
 
     // S3 / aws client
-    //compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.248'
-    compile 'software.amazon.awssdk:s3:2.0.0-preview-8'
+    compile 'software.amazon.awssdk:s3:2.0.0-preview-9'
     compile 'io.minio:minio:3.0.12'
 
     // Test dependencies

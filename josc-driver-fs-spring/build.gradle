@@ -3,14 +3,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.1.RELEASE")
     }
 }
 
 
 
 plugins {
-    id "com.jfrog.bintray" version "1.6"
+    id "com.jfrog.bintray" version "1.8.0"
 }
 
 apply plugin: 'java'
@@ -27,7 +27,7 @@ repositories {
 }
 
 compileJava {
-    sourceCompatibility = 1.9
+    sourceCompatibility = 10
 }
 
 dependencies {
