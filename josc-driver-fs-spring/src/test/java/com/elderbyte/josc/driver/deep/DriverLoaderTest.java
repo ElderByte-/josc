@@ -1,6 +1,5 @@
-package com.elderbyte.josc.driver;
+package com.elderbyte.josc.driver.deep;
 
-import com.elderbyte.josc.SpringBootTestApp;
 import com.elderbyte.josc.core.JoscDriverManager;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.elderbyte.josc;
+package com.elderbyte.josc.driver.deep;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
