@@ -7,15 +7,15 @@ import com.elderbyte.josc.spring.support.streaming.DefaultMimetypeProvider;
 import com.elderbyte.josc.spring.support.streaming.MimeTypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 
 @Configuration
-public class LocalJoscStreamingAutoConfiguration {
+public class LocalJoscStreamingAutoConfiguration implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(LocalJoscStreamingAutoConfiguration.class);
 
@@ -39,10 +39,8 @@ public class LocalJoscStreamingAutoConfiguration {
         return new FsObjectController();
     }
 
-
-    @PostConstruct
-    public void configureJosc(){
-
+    @Override
+    public void afterPropertiesSet() throws Exception {
         log.info("Configuring Josc FS driver ...");
 
         JoscDriverManager.getDefault().register(
