@@ -26,14 +26,15 @@ repositories {
 
 compileJava {
     sourceCompatibility = 10
+    options.encoding = "UTF-8"
 }
 
 dependencies {
 
     compile project(':josc-api')
 
+    compile("org.springframework.boot:spring-boot-starter")
     compile("org.springframework.boot:spring-boot-starter-web")
-
 
     // Test dependencies
     testCompile("org.springframework.boot:spring-boot-starter-test")

@@ -1,8 +1,10 @@
-package com.elderbyte.josc.spring.support;
+package com.elderbyte.josc.driver.fs.config;
 
 import com.elderbyte.josc.core.JoscDriverManager;
 import com.elderbyte.josc.driver.fs.FsObjectController;
 import com.elderbyte.josc.driver.fs.JoscDriverFS;
+import com.elderbyte.josc.spring.support.DefaultLocalHostUrlProvider;
+import com.elderbyte.josc.spring.support.LocalHostUrlProvider;
 import com.elderbyte.josc.spring.support.streaming.DefaultMimetypeProvider;
 import com.elderbyte.josc.spring.support.streaming.MimeTypeProvider;
 import org.slf4j.Logger;
@@ -15,9 +17,9 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-public class LocalJoscStreamingAutoConfiguration implements InitializingBean {
+public class JoscFsDriverAutoConfiguration implements InitializingBean {
 
-    private static final Logger log = LoggerFactory.getLogger(LocalJoscStreamingAutoConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(JoscFsDriverAutoConfiguration.class);
 
 
     @Autowired
