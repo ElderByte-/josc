@@ -4,7 +4,6 @@ package com.elderbyte.josc.api;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.temporal.TemporalAmount;
 import java.util.stream.Stream;
 
 /**

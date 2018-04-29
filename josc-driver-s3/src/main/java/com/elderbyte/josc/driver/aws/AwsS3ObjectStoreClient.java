@@ -1,10 +1,12 @@
 package com.elderbyte.josc.driver.aws;
 
-import com.amazonaws.HttpMethod;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.*;
 import com.elderbyte.josc.api.*;
 import com.elderbyte.josc.api.Bucket;
+import com.elderbyte.josc.core.BucketSimple;
+import io.minio.MinioClient;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -20,19 +22,21 @@ import java.util.stream.Stream;
 public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
     private static final int MAX_KEYS = 1000;
-    private final AmazonS3 s3client;
+    private final S3Client s3client;
+    private final MinioClient minioClient;
 
 
-    public AwsS3ObjectStoreClient(AmazonS3 s3client){
+    public AwsS3ObjectStoreClient(S3Client s3client, MinioClient minioClient){
         if(s3client == null) throw new IllegalArgumentException("s3client must not be null!");
         this.s3client = s3client;
+        this.minioClient = minioClient;
     }
 
 
     @Override
     public Stream<Bucket> listBuckets() {
         try {
-            return s3client.listBuckets().stream()
+            return s3client.listBuckets().buckets().stream()
                     .map(b -> AwsBlobObjectBuilder.build(b));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to listBuckets!", e);
@@ -44,7 +48,8 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateBucketNameOrThrow(bucket);
 
         try {
-            return s3client.doesBucketExistV2(bucket);
+            s3client.headBucket(HeadBucketRequest.builder().bucket(bucket).build());
+            return true;
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to bucketExists + " + bucket, e);
         }
@@ -55,7 +60,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateBucketNameOrThrow(bucket);
 
         try {
-            s3client.deleteBucket(bucket);
+            s3client.deleteBucket(DeleteBucketRequest.builder().bucket(bucket).build());
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to removeBucket + " + bucket, e);
         }
@@ -66,7 +71,8 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateBucketNameOrThrow(bucket);
 
         try {
-            return AwsBlobObjectBuilder.build(s3client.createBucket(bucket));
+            s3client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+            return new BucketSimple(bucket, LocalDateTime.now());
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to removeBucket + " + bucket, e);
         }
@@ -110,13 +116,14 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         if(maxKeys > MAX_KEYS) throw new IllegalArgumentException("maxKeys must be <= " + MAX_KEYS);
 
         try{
-            ListObjectsV2Result result = s3client.listObjectsV2(new ListObjectsV2Request()
-                    .withBucketName(bucket)
-                    .withPrefix(keyPrefix)
-                    .withDelimiter(recursive ? null : "/")
-                    .withMaxKeys(maxKeys)
-                    .withContinuationToken(nextContinuationToken)
-            );
+
+            ListObjectsV2Response result = s3client.listObjectsV2(ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix(keyPrefix)
+                    .delimiter(recursive ? null : "/")
+                    .maxKeys(maxKeys)
+                    .continuationToken(nextContinuationToken)
+                    .build());
 
             return AwsBlobObjectBuilder.buildChunk(result);
         }catch (Exception e){
@@ -130,7 +137,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(key);
 
         try{
-            ObjectMetadata meta = s3client.getObjectMetadata(bucket, key);
+            HeadObjectResponse meta = s3client.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build());
             return AwsBlobObjectBuilder.build(key, meta);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to getBlobObjectInfo: + bucket: " + bucket + ", key:" + key, e);
@@ -142,9 +149,11 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(key);
 
         try {
-            return s3client.doesObjectExist(bucket, key);
+            getBlobObjectInfo(bucket, key);
+            return true;
         }catch (Exception e){
-            throw new ObjectStoreClientException("Failed to objectExists: + bucket: " + bucket + ", key:" + key, e);
+            // throw new ObjectStoreClientException("Failed to objectExists: + bucket: " + bucket + ", key:" + key, e);
+            return false;
         }
     }
 
@@ -154,22 +163,25 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(key);
 
         try {
-            return s3client.getObject(bucket, key).getObjectContent();
+            return minioClient.getObject(bucket, key);
+            /* // TODO Switch to aws sdk (currently broken in preview)
+            return s3client.getObject(
+                    GetObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(key)
+                            .build()
+            );*/
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to getBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
-
     }
 
     @Override
     public InputStream getBlobObject(String bucket, String key, long offset) {
-        validateBucketNameOrThrow(bucket);
-        validateKeyOrThrow(key);
-
         try {
-            return s3client.getObject(new GetObjectRequest(bucket, key).withRange(offset)).getObjectContent();
-        }catch (Exception e){
-            throw new ObjectStoreClientException("Failed to getBlobObject: + bucket: " + bucket + ", key:" + key + ", offsez " + offset, e);
+            return minioClient.getObject(bucket, key, offset); // TODO Switch to aws sdk
+        } catch (Exception e) {
+            throw new ObjectStoreClientException("Failed to getBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
     }
 
@@ -180,23 +192,20 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         if(file == null) throw new IllegalArgumentException("file must not be null!");
 
         try {
-            s3client.putObject(bucket, key, file.toFile());
+            s3client.putObject(PutObjectRequest.builder().bucket(bucket).key(key).build(), file);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to putBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
     }
 
     @Override
-    public void putBlobObject(String bucket, String key, InputStream objectStream, long length) {
+    public void putBlobObject(String bucket, String key, InputStream objectStream, long contentLength) {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
-
         if(objectStream == null) throw new IllegalArgumentException("objectStream must not be null!");
 
         try {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(length);
-            s3client.putObject(bucket, key, objectStream, metadata);
+            s3client.putObject(PutObjectRequest.builder().bucket(bucket).key(key).build(), RequestBody.of(objectStream, contentLength));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to putBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
@@ -207,9 +216,8 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
 
-
         try {
-            s3client.deleteObject(bucket, key);
+            s3client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to deleteBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
@@ -224,31 +232,37 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(destinationKey);
 
         try {
-            s3client.copyObject(sourceBucket, sourceKey, destinationBucket, destinationKey);
+            s3client.copyObject(CopyObjectRequest.builder()
+                    .copySource(sourceBucket + "/" + sourceKey) // TODO Url encode?
+                    .bucket(destinationBucket)
+                    .key(destinationKey)
+                    .build()
+            );
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to deleteBlobObject: + sourceBucket: " + sourceBucket + ", sourceKey:" + sourceKey + ", destinationBucket " + destinationBucket + ", destinationKey " + destinationKey, e);
         }
     }
 
     @Override
-    public String getTempGETUrl(String bucket, String key, Duration expires) {
+    public String getTempGETUrl(String bucket, String key, Duration temporalAmount) {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
 
         try {
-            return s3client.generatePresignedUrl(bucket, key, expiresIn(expires), HttpMethod.GET).toString();
+            // GetObjectRequest request = GetObjectRequest.builder().bucket(bucket).key(key).build();
+            return minioClient.presignedGetObject(bucket, key, (int)temporalAmount.get(ChronoUnit.SECONDS)); // TODO SDK V2 Does not yet support presigned urls
         }catch (Exception e){
             throw new ObjectStoreClientException("getTempGETUrl failed! bucket: " + bucket + ", key:" + key, e);
         }
     }
 
     @Override
-    public String getTempPUTUrl(String bucket, String key, Duration expires) {
+    public String getTempPUTUrl(String bucket, String key, Duration temporalAmount) {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
 
         try {
-            return s3client.generatePresignedUrl(bucket, key, expiresIn(expires), HttpMethod.PUT).toString();
+            return minioClient.presignedPutObject(bucket, key, (int)temporalAmount.get(ChronoUnit.SECONDS)); // TODO SDK V2 Does not yet support presigned urls
         }catch (Exception e){
             throw new ObjectStoreClientException("getTempPUTUrl failed! bucket: " + bucket + ", key:" + key, e);
         }
@@ -260,16 +274,18 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(key);
 
         try {
-            return s3client.getUrl(bucket, key).toString();
+            return minioClient.getObjectUrl(bucket, key); // TODO SDK V2 Does not yet support building urls
         }catch (Exception e){
             throw new ObjectStoreClientException("getPublicUrl failed! bucket: " + bucket + ", key:" + key, e);
         }
     }
 
-    private Date expiresIn(Duration duration){
-        LocalDateTime now = LocalDateTime.now().plus(duration);
+
+    private Date toDateFromNow(Duration temporalAmount){
+        LocalDateTime now = LocalDateTime.now().plus(temporalAmount);
         return Date.from(now.toInstant(ZoneOffset.UTC));
     }
+
 
     private void validateBucketNameOrThrow(String bucket){
         if(bucket == null) throw new IllegalArgumentException("bucket must not be null!");

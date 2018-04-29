@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.*;
 import java.time.Duration;
-import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -252,6 +251,7 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
     public String getTempGETUrl(String bucket, String key, Duration duration) {
         return getSignedResourceUrl(bucket, key);
     }
+
 
     @Override
     public String getTempPUTUrl(String bucket, String key, Duration duration) {

@@ -164,18 +164,18 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
     }
 
     @Override
-    public String getTempGETUrl(String bucket, String key, Duration duration) {
+    public String getTempGETUrl(String bucket, String key, Duration expiry) {
         try {
-            return swiftClient.getContainer(bucket).getObject(key).getTempGetUrl(duration.get(ChronoUnit.SECONDS));
+            return swiftClient.getContainer(bucket).getObject(key).getTempGetUrl(expiry.get(ChronoUnit.SECONDS));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create presigned GetObject url " + bucket + " : " + key, e);
         }
     }
 
     @Override
-    public String getTempPUTUrl(String bucket, String key, Duration duration) {
+    public String getTempPUTUrl(String bucket, String key, Duration expiry) {
         try {
-            return swiftClient.getContainer(bucket).getObject(key).getTempPutUrl(duration.get(ChronoUnit.SECONDS));
+            return swiftClient.getContainer(bucket).getObject(key).getTempPutUrl(expiry.get(ChronoUnit.SECONDS));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create presigned PutObject " + bucket + " : " + key, e);
         }

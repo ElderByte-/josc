@@ -200,6 +200,7 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
         }
     }
 
+
     @Override
     public String getTempGETUrl(String bucket, String key, Duration temporalAmount) {
         String url = getObjectUrl(bucket, key);
