@@ -9,7 +9,7 @@ public class DriverLoaderTest {
     @Test
     public void testServiceLoader(){
         var driverManager = JoscDriverManager.getDefault();
-        Assert.assertEquals(3, driverManager.getDrivers().size());
+        Assert.assertEquals(1, driverManager.getDrivers().size());
     }
 
 }

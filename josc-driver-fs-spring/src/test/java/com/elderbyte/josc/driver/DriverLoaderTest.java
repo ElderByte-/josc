@@ -1,4 +1,4 @@
-package com.elderbyte.josc;
+package com.elderbyte.josc.driver;
 
 import com.elderbyte.josc.core.JoscDriverManager;
 import org.junit.Assert;
@@ -9,7 +9,7 @@ public class DriverLoaderTest {
     @Test
     public void testServiceLoader(){
         var driverManager = JoscDriverManager.getDefault();
-        Assert.assertEquals(3, driverManager.getDrivers().size());
+        Assert.assertEquals(1, driverManager.getDrivers().size());
     }
 
 }
