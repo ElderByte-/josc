@@ -1,6 +1,13 @@
-plugins {
-    id "com.jfrog.bintray" version "1.8.0"
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${pluginBintray}"
+    }
 }
+apply plugin: 'com.jfrog.bintray'
+
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
