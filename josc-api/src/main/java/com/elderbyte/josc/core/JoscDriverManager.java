@@ -57,17 +57,14 @@ public class JoscDriverManager implements ObjectStoreClientFactory {
      *                                                                         *
      **************************************************************************/
 
-    public JoscDriverManager() {
-
-    }
+    public JoscDriverManager() { }
 
     /***************************************************************************
      *                                                                         *
      * Public API                                                              *
      *                                                                         *
      **************************************************************************/
-
-
+    
     /**
      * Registers the given driver in this driver manager
      */

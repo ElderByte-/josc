@@ -18,6 +18,11 @@ import java.util.regex.Pattern;
  */
 public class JoscConnectionString {
 
+    /***************************************************************************
+     *                                                                         *
+     * Static builders                                                         *
+     *                                                                         *
+     **************************************************************************/
 
     private static Pattern connectionStringPattern = Pattern.compile("^josc:([a-zA-Z0-9]+):([^;]+)(.*)");
 
