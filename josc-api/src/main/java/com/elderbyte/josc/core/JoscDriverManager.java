@@ -86,11 +86,23 @@ public class JoscDriverManager implements ObjectStoreClientFactory {
         var cs = JoscConnectionString.parse(connectionString)
                     .withMergedProperties(properties.getMapSnapshot());
 
+        return getDriverFor(cs);
+    }
+
+    /***************************************************************************
+     *                                                                         *
+     * Private methods                                                         *
+     *                                                                         *
+     **************************************************************************/
+
+    private ObjectStoreClient getDriverFor(JoscConnectionTarget target){
         for (JoscDriver driver : drivers) {
-            if(driver.supports(cs.getProtocol(), cs.getHost(), cs.getProperties())){
-                return driver.openConnection(cs.getHost(), cs.getProperties());
+            if(driver.supports(target.getProtocol(), target.getHost(), target.getProperties())){
+                return driver.openConnection(target.getHost(), target.getProperties());
             }
         }
-        throw new ObjectStoreConnectionException("Failed to open connection, no driver supports your protocol " + cs.getProtocol());
+        throw new ObjectStoreConnectionException("Failed to open connection, no driver supports your protocol " + target.getProtocol());
     }
+
+
 }
