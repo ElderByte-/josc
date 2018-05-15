@@ -74,4 +74,12 @@ public class JoscConnectionTarget {
         return new JoscConnectionTarget(protocol, host, props);
     }
 
+    @Override
+    public String toString() {
+        return "JoscConnectionTarget{" +
+                "protocol='" + protocol + '\'' +
+                ", host='" + host + '\'' +
+                ", properties=" + properties +
+                '}';
+    }
 }

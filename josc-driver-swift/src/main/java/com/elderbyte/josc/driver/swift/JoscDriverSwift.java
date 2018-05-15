@@ -42,4 +42,9 @@ public class JoscDriverSwift implements JoscDriver {
     public boolean supports(String protocol, String host, JoscConnectionProperties properties) {
         return "swift".equalsIgnoreCase(protocol) || "joss".equalsIgnoreCase(protocol);
     }
+
+    @Override
+    public String toString() {
+        return "JoscDriverSwift{protocols: [swift, joss]}";
+    }
 }

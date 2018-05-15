@@ -50,4 +50,11 @@ public class JoscDriverFS implements JoscDriver {
             throw new ObjectStoreConnectionException("Failed to get fallback host for local object-store emulation.", e);
         }
     }
+
+    @Override
+    public String toString() {
+        return "JoscDriverFS{" +
+                "protocols: [fs]" +
+                '}';
+    }
 }

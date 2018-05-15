@@ -5,6 +5,8 @@ import com.elderbyte.josc.api.JoscDriver;
 
 import java.util.*;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * The standard josc driver manager implementation.
  */
@@ -101,7 +103,13 @@ public class JoscDriverManager implements ObjectStoreClientFactory {
                 return driver.openConnection(target.getHost(), target.getProperties());
             }
         }
-        throw new ObjectStoreConnectionException("Failed to open connection, no driver supports your protocol " + target.getProtocol());
+
+        var lines = drivers.stream()
+                        .map(d -> d.toString())
+                        .collect(toList());
+        var availableDrivers = "[" + String.join(",", lines) + "]";
+
+        throw new ObjectStoreConnectionException("Failed to open connection, no driver supports your target " + target + "! Available drivers: " + availableDrivers);
     }
 
 

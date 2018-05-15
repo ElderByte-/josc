@@ -32,4 +32,9 @@ public class JoscDriverWebDav implements JoscDriver {
     public boolean supports(String protocol, String host, JoscConnectionProperties properties) {
         return "webdav".equalsIgnoreCase(protocol);
     }
+
+    @Override
+    public String toString() {
+        return "JoscDriverWebDav{protocols:[webdav]}";
+    }
 }

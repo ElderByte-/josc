@@ -69,4 +69,8 @@ public class JoscDriverAwsS3 implements JoscDriver {
         return "s3".equalsIgnoreCase(protocol) || "aws".equalsIgnoreCase(protocol);
     }
 
+    @Override
+    public String toString() {
+        return "JoscDriverAwsS3{ protocols: [s3, aws] }";
+    }
 }
