@@ -29,7 +29,7 @@ dependencies {
 
     // S3 / aws client
     compile 'software.amazon.awssdk:s3:2.0.0-preview-9'
-    compile 'io.minio:minio:3.0.12'
+    compile 'io.minio:minio:4.0.0'
 
     // Test dependencies
     testCompile group: 'junit', name: 'junit', version: '4.12'
