@@ -11,9 +11,24 @@ import java.util.concurrent.TimeUnit;
 
 public class ObjectStoreClientPool implements ObjectStoreClientFactory {
 
+    /***************************************************************************
+     *                                                                         *
+     * Fields                                                                  *
+     *                                                                         *
+     **************************************************************************/
+
     private final ObjectStoreClientFactory clientFactory;
     private final LoadingCache<ClientKey, ObjectStoreClient> clientCache;
 
+    /***************************************************************************
+     *                                                                         *
+     * Constructors                                                            *
+     *                                                                         *
+     **************************************************************************/
+
+    /**
+     * Creates a new client pool with the given factory.
+     */
     public ObjectStoreClientPool(ObjectStoreClientFactory clientFactory){
         this.clientFactory = clientFactory;
         clientCache = Caffeine.newBuilder()
@@ -22,10 +37,24 @@ public class ObjectStoreClientPool implements ObjectStoreClientFactory {
                         .build(k -> buildClient(k));
     }
 
+    /***************************************************************************
+     *                                                                         *
+     * Public API                                                              *
+     *                                                                         *
+     **************************************************************************/
+
+
     @Override
     public ObjectStoreClient buildClient(String connectionString, JoscConnectionProperties properties) throws ObjectStoreConnectionException {
         return clientCache.get(new ClientKey(connectionString, properties));
     }
+
+    /***************************************************************************
+     *                                                                         *
+     * Private methods                                                         *
+     *                                                                         *
+     **************************************************************************/
+
 
     private ObjectStoreClient buildClient(ClientKey key){
         return clientFactory.buildClient(key.getConnectionString(), key.getProperties());

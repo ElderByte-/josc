@@ -10,6 +10,12 @@ import java.util.*;
  */
 public class JoscDriverManager implements ObjectStoreClientFactory {
 
+    /***************************************************************************
+     *                                                                         *
+     * Static Builders                                                         *
+     *                                                                         *
+     **************************************************************************/
+
     private final static JoscDriverManager defaultInstance = buildDefault();
 
     /**
@@ -37,13 +43,30 @@ public class JoscDriverManager implements ObjectStoreClientFactory {
         return driverManager;
     }
 
+    /***************************************************************************
+     *                                                                         *
+     * Fields                                                                  *
+     *                                                                         *
+     **************************************************************************/
 
     private final List<JoscDriver> drivers = new ArrayList<>();
 
+    /***************************************************************************
+     *                                                                         *
+     * Constructors                                                            *
+     *                                                                         *
+     **************************************************************************/
 
     public JoscDriverManager() {
 
     }
+
+    /***************************************************************************
+     *                                                                         *
+     * Public API                                                              *
+     *                                                                         *
+     **************************************************************************/
+
 
     /**
      * Registers the given driver in this driver manager
