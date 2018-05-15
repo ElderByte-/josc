@@ -64,7 +64,7 @@ public class JoscDriverManager implements ObjectStoreClientFactory {
      * Public API                                                              *
      *                                                                         *
      **************************************************************************/
-    
+
     /**
      * Registers the given driver in this driver manager
      */
@@ -83,9 +83,8 @@ public class JoscDriverManager implements ObjectStoreClientFactory {
     @Override
     public ObjectStoreClient buildClient(String connectionString, JoscConnectionProperties properties) throws ObjectStoreConnectionException {
 
-        JoscConnectionString cs = JoscConnectionString.parse(connectionString);
-
-        cs.addProperties(properties.getMapSnapshot());
+        var cs = JoscConnectionString.parse(connectionString)
+                    .withMergedProperties(properties.getMapSnapshot());
 
         for (JoscDriver driver : drivers) {
             if(driver.supports(cs.getProtocol(), cs.getHost(), cs.getProperties())){

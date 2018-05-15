@@ -1,6 +1,5 @@
 package com.elderbyte.josc.core;
 
-import com.elderbyte.josc.api.JoscConnectionProperties;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class JoscConnectionString {
      * @return An object holding the parsed connection values.
      * @throws IllegalArgumentException Thrown when the connection string did not have a valid format.
      */
-    public static JoscConnectionString parse(String connectionString) throws IllegalArgumentException {
+    public static JoscConnectionTarget parse(String connectionString) throws IllegalArgumentException {
 
         if (connectionString == null) throw new IllegalArgumentException("Argument connectionString must not be null!");
         if (connectionString.trim().isEmpty()) throw new IllegalArgumentException("Argument connectionString must not be empty!");
@@ -48,7 +47,9 @@ public class JoscConnectionString {
             String joscHostWithPort = matcher.group(2);
             String joscVendorProperties = matcher.group(3);
 
-            return new JoscConnectionString(joscProtocol, joscHostWithPort, parseVendorProperties(joscVendorProperties));
+            var vendorProps = parseVendorProperties(joscVendorProperties);
+
+            return new JoscConnectionTarget(joscProtocol, joscHostWithPort, vendorProps);
         }else{
             throw new IllegalArgumentException("The given string is not a valid josc connection-string! " + connectionString);
         }
@@ -73,69 +74,5 @@ public class JoscConnectionString {
 
         return properties;
     }
-
-    /***************************************************************************
-     *                                                                         *
-     * Fields                                                                  *
-     *                                                                         *
-     **************************************************************************/
-
-    private String protocol;
-    private String host;
-    private final Map<String, String> properties = new HashMap<>();
-
-
-    /***************************************************************************
-     *                                                                         *
-     * Constructors                                                            *
-     *                                                                         *
-     **************************************************************************/
-
-    public JoscConnectionString(String protocol, String host, Map<String,String> properties){
-        this.protocol = protocol;
-        this.host = host;
-        this.properties.putAll(properties);
-    }
-
-    /***************************************************************************
-     *                                                                         *
-     * Properties                                                              *
-     *                                                                         *
-     **************************************************************************/
-
-    /**
-     * Gets the josc sub protocol, such as s3, minio, webdav or fs (file system)
-     */
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    /**
-     * Gets the host. This is usually a domain name and optionally a port, but is basically
-     * up to the sub-protocol driver. For example, if you use the fs driver for local file system
-     * access, the host is the base folder on the local host.
-     *
-     * @return
-     */
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public void addProperties(Map<String, String> props){
-        properties.putAll(props);
-    }
-
-    public JoscConnectionProperties getProperties(){
-        return new JoscConnectionProperties(this.properties);
-    }
-
 
 }
