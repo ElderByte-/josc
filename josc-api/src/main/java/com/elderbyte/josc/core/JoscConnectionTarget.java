@@ -4,8 +4,6 @@ import com.elderbyte.josc.api.JoscConnectionProperties;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Represents a josc connection target.
@@ -68,10 +66,10 @@ public class JoscConnectionTarget {
      *                                                                         *
      **************************************************************************/
 
-    public JoscConnectionTarget withMergedProperties(Map<String,String> properties){
-        var props = new HashMap<>(properties);
-        props.putAll(properties);
-        return new JoscConnectionTarget(protocol, host, props);
+    public JoscConnectionTarget withMergedProperties(Map<String,String> newProps){
+        var mergedProps = new HashMap<>(this.properties);
+        mergedProps.putAll(newProps);
+        return new JoscConnectionTarget(protocol, host, mergedProps);
     }
 
     @Override
