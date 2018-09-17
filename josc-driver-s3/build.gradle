@@ -28,8 +28,8 @@ dependencies {
     compile project(':josc-api')
 
     // S3 / aws client
-    compile 'software.amazon.awssdk:s3:2.0.0-preview-9'
-    compile 'io.minio:minio:4.0.0'
+    compile 'software.amazon.awssdk:s3:2.0.0-preview-11'
+    compile 'io.minio:minio:5.0.1'
 
     // Test dependencies
     testCompile group: 'junit', name: 'junit', version: '4.12'

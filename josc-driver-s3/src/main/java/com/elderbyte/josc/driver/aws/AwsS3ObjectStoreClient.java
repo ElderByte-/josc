@@ -205,7 +205,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         if(objectStream == null) throw new IllegalArgumentException("objectStream must not be null!");
 
         try {
-            s3client.putObject(PutObjectRequest.builder().bucket(bucket).key(key).build(), RequestBody.of(objectStream, contentLength));
+            s3client.putObject(PutObjectRequest.builder().bucket(bucket).key(key).build(), RequestBody.fromInputStream(objectStream, contentLength));
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to putBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
@@ -249,7 +249,14 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(key);
 
         try {
-            // GetObjectRequest request = GetObjectRequest.builder().bucket(bucket).key(key).build();
+            /*
+            var getRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
+
+            AwsS3V4Signer.create().presign(
+                    getRequest-todo,
+                    Aws4PresignerParams.builder().build()
+            );*/
+
             return minioClient.presignedGetObject(bucket, key, (int)temporalAmount.get(ChronoUnit.SECONDS)); // TODO SDK V2 Does not yet support presigned urls
         }catch (Exception e){
             throw new ObjectStoreClientException("getTempGETUrl failed! bucket: " + bucket + ", key:" + key, e);

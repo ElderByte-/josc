@@ -6,13 +6,11 @@ import com.elderbyte.josc.api.JoscDriver;
 import com.elderbyte.josc.api.ObjectStoreClient;
 import com.elderbyte.josc.api.ObjectStoreConnectionException;
 import io.minio.MinioClient;
-import software.amazon.awssdk.core.auth.AwsCredentials;
-import software.amazon.awssdk.core.auth.AwsCredentialsProvider;
-import software.amazon.awssdk.core.auth.StaticCredentialsProvider;
-import software.amazon.awssdk.core.regions.Region;
-import software.amazon.awssdk.services.s3.S3AdvancedConfiguration;
-import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 
 import java.net.URI;
 
@@ -34,11 +32,17 @@ public class JoscDriverAwsS3 implements JoscDriver {
                     .region(Region.US_EAST_1)
                     .endpointOverride(new URI(host))
                     .credentialsProvider(StaticCredentialsProvider.create(
-                            AwsCredentials.create(properties.getRequiredProperty("user"), properties.getRequiredProperty("pass"))))
-                    .advancedConfiguration(S3AdvancedConfiguration.builder()
+                            AwsBasicCredentials.create(
+                                    properties.getRequiredProperty("user"),
+                                    properties.getRequiredProperty("pass")
+                            )
+                    ))
+                    .serviceConfiguration(S3Configuration.builder()
                             .pathStyleAccessEnabled(true)
                             .build())
                     .build();
+
+
             /*
 
             ClientConfiguration clientConfiguration = new ClientConfiguration();
