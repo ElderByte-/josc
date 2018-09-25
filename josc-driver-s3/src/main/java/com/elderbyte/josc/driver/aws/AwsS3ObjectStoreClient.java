@@ -117,17 +117,22 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
         try{
 
-            ListObjectsV2Response result = s3client.listObjectsV2(ListObjectsV2Request.builder()
+            var listObjectsRequest = ListObjectsV2Request.builder()
                     .bucket(bucket)
                     .prefix(keyPrefix)
                     .delimiter(recursive ? null : "/")
                     .maxKeys(maxKeys)
-                    .continuationToken(nextContinuationToken)
-                    .build());
+                    .continuationToken(nextContinuationToken != null && nextContinuationToken.isEmpty() ? null : nextContinuationToken)
+                    .build();
+
+            var result = s3client.listObjectsV2(listObjectsRequest);
 
             return AwsBlobObjectBuilder.buildChunk(result);
         }catch (Exception e){
-            throw new ObjectStoreClientException("Failed to listBlobObjectsChunked: + bucket: " + bucket + ", keyPrefix:" + keyPrefix + ", recursive " + recursive + ", maxKeys " + maxKeys + ", next-token " + nextContinuationToken, e);
+            throw new ObjectStoreClientException(
+                    "Failed to listBlobObjectsChunked: + bucket: " + bucket
+                            + ", keyPrefix: '" + keyPrefix + "', recursive: '" + recursive
+                            + "', maxKeys: '" + maxKeys + "', next-token: '" + nextContinuationToken + "'", e);
         }
     }
 
