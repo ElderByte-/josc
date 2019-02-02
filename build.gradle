@@ -15,10 +15,6 @@ allprojects {
 
 subprojects {
 
-    ext {
-        bintrayDryRun = false
-    }
-
     tasks.withType(Javadoc) {
         // Avoid failing builds because of java-doc errors
         options.addStringOption('Xdoclint:none', '-quiet')
