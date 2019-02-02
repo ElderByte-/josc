@@ -1,20 +1,10 @@
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${pluginBintray}"
-    }
-}
 
-apply plugin: 'com.jfrog.bintray'
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 
 
@@ -85,7 +75,7 @@ bintray {
     key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
     publications = ['mavenJava']
 
-    dryRun = false //Whether to run this as dry-run, without deploying
+    dryRun = "${bintrayDryRun}" //Whether to run this as dry-run, without deploying
     publish = true //If version should be auto published after an upload
 
     pkg {
