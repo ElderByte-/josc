@@ -254,6 +254,8 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(key);
 
         try {
+
+
             /*
             var getRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
 
@@ -261,6 +263,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
                     getRequest-todo,
                     Aws4PresignerParams.builder().build()
             );*/
+
 
             return minioClient.presignedGetObject(bucket, key, (int)temporalAmount.get(ChronoUnit.SECONDS)); // TODO SDK V2 Does not yet support presigned urls
         }catch (Exception e){
@@ -285,7 +288,9 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
 
+
         try {
+
             return minioClient.getObjectUrl(bucket, key); // TODO SDK V2 Does not yet support building urls
         }catch (Exception e){
             throw new ObjectStoreClientException("getPublicUrl failed! bucket: " + bucket + ", key:" + key, e);
