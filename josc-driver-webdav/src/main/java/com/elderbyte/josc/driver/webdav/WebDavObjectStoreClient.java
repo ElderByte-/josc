@@ -168,6 +168,16 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
 
     @Override
     public void putBlobObject(String bucket, String key, InputStream objectStream, long length) {
+        putBlobObject(bucket, key, objectStream);
+    }
+
+    @Override
+    public void putBlobObject(String bucket, String key, InputStream objectStream) {
+        putBlobObject(bucket, key, objectStream, null);
+    }
+
+    @Override
+    public void putBlobObject(String bucket, String key, InputStream objectStream, String contentType) {
 
         String putUrlStr = getObjectUrl(bucket, key);
         try {
@@ -176,7 +186,12 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
 
             sardine.createDirectory(parent.toString());
 
-            sardine.put(putUrlStr, objectStream);
+            if(contentType == null){
+                sardine.put(putUrlStr, objectStream);
+            }else{
+                sardine.put(putUrlStr, objectStream, contentType);
+            }
+
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to upload stream to " + putUrlStr, e);
         }

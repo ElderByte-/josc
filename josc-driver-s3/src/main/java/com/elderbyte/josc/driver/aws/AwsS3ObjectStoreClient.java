@@ -19,6 +19,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * This object-store client supports the S3 / Minio API.
+ *
+ * Note:
+ * This implementation uses both the minio client and the AWS S3 SDK.
+ * The reason for this is that both (java) clients have their short-comings, but
+ * luckily they complement each other quite well.
+ *
+ * Minio Client Fails at:
+ * - Continuable Object Listing (hides the continuation token behind its "easy" api.)
+ *
+ * AWS SDK Fails at:
+ * - Uploading unknown sized streams
+ * - Generating presigned urls
+ *
+ */
 public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
     private static final int MAX_KEYS = 1000;
@@ -215,6 +231,25 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
             throw new ObjectStoreClientException("Failed to putBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
     }
+
+    @Override
+    public void putBlobObject(String bucket, String key, InputStream objectStream) {
+        putBlobObject(bucket, key, objectStream, null);
+    }
+
+    @Override
+    public void putBlobObject(String bucket, String key, InputStream objectStream, String contentType) {
+        validateBucketNameOrThrow(bucket);
+        validateKeyOrThrow(key);
+        if(objectStream == null) throw new IllegalArgumentException("objectStream must not be null!");
+
+        try {
+            minioClient.putObject(bucket, key, objectStream, contentType);
+        }catch (Exception e){
+            throw new ObjectStoreClientException("Failed to putBlobObject: + bucket: " + bucket + ", key:" + key, e);
+        }
+    }
+
 
     @Override
     public void deleteBlobObject(String bucket, String key) {

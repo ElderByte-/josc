@@ -186,6 +186,16 @@ public class FileSystemObjectStoreClient implements ObjectStoreClient {
 
     @Override
     public void putBlobObject(String bucket, String key, InputStream objectStream, long length) {
+        putBlobObject(bucket, key, objectStream);
+    }
+
+    @Override
+    public void putBlobObject(String bucket, String key, InputStream objectStream, String contentType) {
+        putBlobObject(bucket, key, objectStream);
+    }
+
+    @Override
+    public void putBlobObject(String bucket, String key, InputStream objectStream) {
 
         try {
             Path targetPath = getObjectPath(bucket, key);

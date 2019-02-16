@@ -146,7 +146,18 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
 
     @Override
     public void putBlobObject(String bucket, String key, InputStream objectStream, long length){
+        putBlobObject(bucket, key, objectStream);
+    }
+
+    @Override
+    public void putBlobObject(String bucket, String key, InputStream objectStream){
+        putBlobObject(bucket, key, objectStream);
+    }
+
+    @Override
+    public void putBlobObject(String bucket, String key, InputStream objectStream, String contentType){
         try {
+            // TODO contentType
             swiftClient.getContainer(bucket).getObject(key)
                     .uploadObject(objectStream);
         }catch (Exception e){

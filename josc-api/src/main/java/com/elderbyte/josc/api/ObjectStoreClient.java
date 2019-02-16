@@ -115,8 +115,26 @@ public interface ObjectStoreClient {
      * @param bucket The bucket in which to store the object.
      * @param key The bucket relative object name
      * @param objectStream The data stream
+     * @param length The object length in bytes
      */
     void putBlobObject(String bucket, String key, InputStream objectStream, long length);
+
+    /**
+     * Upload an unknown sized input-stream of an unknown content type.
+     * @param bucket The bucket in which to store the object.
+     * @param key The bucket relative object name
+     * @param objectStream The data stream
+     */
+    void putBlobObject(String bucket, String key, InputStream objectStream);
+
+    /**
+     * Upload an unknown sized inputstream of a known content type
+     * @param bucket The bucket in which to store the object.
+     * @param key The bucket relative object name
+     * @param objectStream The data stream
+     * @param contentType The content type
+     */
+    void putBlobObject(String bucket, String key, InputStream objectStream, String contentType);
 
     /**
      * Deletes the blob object at the given bucket / key.
