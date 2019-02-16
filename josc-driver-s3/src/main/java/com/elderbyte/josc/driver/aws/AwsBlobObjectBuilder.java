@@ -12,10 +12,7 @@ import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +56,7 @@ class AwsBlobObjectBuilder {
         return new BlobObjectSimple(
                 key,
                 Optional.ofNullable(meta.contentLength()).orElse(0L),
-                toZonedDate(createdTime),
+                toOffsetDatetime(createdTime),
                 meta.eTag(),
                 false
         );
@@ -79,7 +76,7 @@ class AwsBlobObjectBuilder {
         return new BlobObjectSimple(
                 summary.key(),
                 Optional.ofNullable(summary.size()).orElse(0L),
-                toZonedDate(createdTime),
+                toOffsetDatetime(createdTime),
                 summary.eTag(),
                 false
         );
@@ -109,25 +106,14 @@ class AwsBlobObjectBuilder {
 
         return new BucketSimple(
                 awsBucket.name(),
-                toLocalDate(createdDate));
+                toOffsetDatetime(createdDate));
     }
 
-    private static ZonedDateTime toZonedDate(Instant date){
+    private static OffsetDateTime toOffsetDatetime(Instant date){
         if(date != null){
-            return ZonedDateTime.ofInstant(date, ZoneId.systemDefault());
+            return date.atOffset(ZoneOffset.UTC);
         }else{
-            return ZonedDateTime.now();
+            return OffsetDateTime.now();
         }
     }
-
-    private static LocalDateTime toLocalDate(Instant date){
-        if(date != null){
-            return LocalDateTime.ofInstant(date, ZoneId.systemDefault());
-        }else{
-            return LocalDateTime.now();
-        }
-    }
-
-
-
 }

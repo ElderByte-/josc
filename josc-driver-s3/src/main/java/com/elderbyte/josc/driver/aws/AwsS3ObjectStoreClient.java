@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
         try {
             s3client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
-            return new BucketSimple(bucket, LocalDateTime.now());
+            return new BucketSimple(bucket, OffsetDateTime.now());
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to removeBucket + " + bucket, e);
         }

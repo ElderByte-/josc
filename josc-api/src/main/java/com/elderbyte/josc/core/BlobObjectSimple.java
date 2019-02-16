@@ -2,6 +2,7 @@ package com.elderbyte.josc.core;
 
 import com.elderbyte.josc.api.BlobObject;
 
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class BlobObjectSimple implements BlobObject {
     private final String objectName;
     private final long length;
     private final String hash;
-    private final ZonedDateTime lastModified;
+    private final OffsetDateTime lastModified;
     private final boolean isDirectory;
     private static final Map<String, String> metaData = new HashMap<>(); // Not used for now
 
@@ -31,7 +32,7 @@ public class BlobObjectSimple implements BlobObject {
      *                                                                         *
      **************************************************************************/
 
-    public BlobObjectSimple(String objectName, long length, ZonedDateTime lastModified, String hash, boolean isDirectory){
+    public BlobObjectSimple(String objectName, long length, OffsetDateTime lastModified, String hash, boolean isDirectory){
         this.objectName = objectName;
         this.length = length;
         this.lastModified = lastModified;
@@ -61,7 +62,7 @@ public class BlobObjectSimple implements BlobObject {
     }
 
     @Override
-    public ZonedDateTime getLastModified() {
+    public OffsetDateTime getLastModified() {
         return lastModified;
     }
 

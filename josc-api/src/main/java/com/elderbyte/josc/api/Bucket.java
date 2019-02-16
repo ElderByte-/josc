@@ -1,6 +1,6 @@
 package com.elderbyte.josc.api;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * Represents a bucket in a object store.
@@ -18,6 +18,6 @@ public interface Bucket {
     /**
      * Gets the creation date of this bucket
      */
-    LocalDateTime getCreationDate();
+    OffsetDateTime getCreationDate();
 
 }

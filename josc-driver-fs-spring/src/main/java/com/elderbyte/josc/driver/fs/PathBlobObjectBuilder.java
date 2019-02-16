@@ -6,7 +6,9 @@ import com.elderbyte.josc.api.ObjectStoreClientException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,9 +85,11 @@ public class PathBlobObjectBuilder {
         }
 
         @Override
-        public ZonedDateTime getLastModified() {
+        public OffsetDateTime getLastModified() {
             try {
-                return ZonedDateTime.ofInstant(Files.getLastModifiedTime(path).toInstant(), ZoneId.systemDefault());
+                return Files.getLastModifiedTime(path)
+                        .toInstant()
+                        .atOffset(ZoneOffset.UTC);
             } catch (IOException e) {
                 throw new ObjectStoreClientException("Failed to get size.", e);
             }

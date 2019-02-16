@@ -8,9 +8,7 @@ import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
 
 import java.sql.Blob;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,13 +18,13 @@ class SwiftBlobObjectBuilder {
         return new BlobObjectSimple(
                 swiftObject.getName(),
                 swiftObject.getContentLength(),
-                ZonedDateTime.ofInstant(swiftObject.getLastModifiedAsDate().toInstant(), ZoneId.systemDefault()),
+                swiftObject.getLastModifiedAsDate().toInstant().atOffset(ZoneOffset.UTC),
                 swiftObject.getEtag(),
                 swiftObject.isDirectory()
         );
     }
 
     public static Bucket build(Container container){
-        return new BucketSimple(container.getName(), LocalDateTime.now()); // TODO get creation date
+        return new BucketSimple(container.getName(), OffsetDateTime.now()); // TODO get creation date
     }
 }

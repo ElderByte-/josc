@@ -13,10 +13,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.TemporalAmount;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,9 +43,12 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
         try {
             return sardine.list(baseUrl.toString()).stream()
                 .filter(r -> r.isDirectory())
-                .map(r -> new BucketSimple(
-                    r.getName(),
-                    LocalDateTime.ofInstant(r.getCreation().toInstant(), ZoneId.systemDefault())));
+                .map(
+                        r -> new BucketSimple(
+                            r.getName(),
+                            r.getCreation().toInstant().atOffset(ZoneOffset.UTC)
+                        )
+                );
 
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to list buckets!", e);
@@ -79,7 +79,7 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
             sardine.createDirectory(getBucketUrl(bucket));
             return new BucketSimple(
                     bucket,
-                    LocalDateTime.now()
+                    OffsetDateTime.now()
             );
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create bucket!", e);
@@ -258,7 +258,7 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
         return new BlobObjectSimple(
             getObjectKey(bucket, res),
             res.getContentLength(),
-            ZonedDateTime.ofInstant(res.getCreation().toInstant(), ZoneId.systemDefault()),
+                res.getCreation().toInstant().atOffset(ZoneOffset.UTC),
             res.getEtag(),
             res.isDirectory());
     }
