@@ -256,11 +256,14 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
     private BlobObject toBlobObject(String bucket, DavResource res){
 
         return new BlobObjectSimple(
+            bucket,
             getObjectKey(bucket, res),
             res.getContentLength(),
                 res.getCreation().toInstant().atOffset(ZoneOffset.UTC),
             res.getEtag(),
-            res.isDirectory());
+            res.isDirectory(),
+            res.getContentType()
+        );
     }
 
     private String getObjectKey(String bucket, DavResource res){

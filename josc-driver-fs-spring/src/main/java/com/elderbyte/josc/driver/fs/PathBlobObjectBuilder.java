@@ -12,6 +12,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 
 public class PathBlobObjectBuilder {
@@ -27,7 +28,10 @@ public class PathBlobObjectBuilder {
         if (path == null) throw new IllegalArgumentException("path must not be null");
         if (bucketPath == null) throw new IllegalArgumentException("bucketPath must not be null");
 
-        return new PathBlobObject(path, PathRelativizer.relativize(path, bucketPath).toString());
+        return new PathBlobObject(
+                bucketPath.getFileName().toString(),
+                path,
+                PathRelativizer.relativize(path, bucketPath).toString());
     }
 
     static class PathBlobObject implements BlobObject {
@@ -37,6 +41,7 @@ public class PathBlobObjectBuilder {
          *                                                                         *
          **************************************************************************/
 
+        private final String bucket;
         private final Path path;
         private final String key;
 
@@ -49,11 +54,13 @@ public class PathBlobObjectBuilder {
         /**
          * Creates a new PathBlobObjectBuilder
          */
-        PathBlobObject(Path path, String key) {
+        PathBlobObject(String bucket, Path path, String key) {
 
+            if (bucket == null) throw new IllegalArgumentException("bucket");
             if (path == null) throw new IllegalArgumentException("path");
             if (key == null || key.isEmpty()) throw new IllegalArgumentException("key: " + key);
 
+            this.bucket = bucket;
             this.path = path;
             this.key = key;
         }
@@ -64,6 +71,10 @@ public class PathBlobObjectBuilder {
          *                                                                         *
          **************************************************************************/
 
+        @Override
+        public String getBucket() {
+            return bucket;
+        }
 
         @Override
         public String getObjectName() {
@@ -80,8 +91,13 @@ public class PathBlobObjectBuilder {
         }
 
         @Override
-        public String hash() {
-            return null;
+        public Optional<String> getContentType() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<String> getObjectHash() {
+            return Optional.empty();
         }
 
         @Override
@@ -113,5 +129,7 @@ public class PathBlobObjectBuilder {
                     ", dir='" + isDirectory() + '\'' +
                     '}';
         }
+
+
     }
 }

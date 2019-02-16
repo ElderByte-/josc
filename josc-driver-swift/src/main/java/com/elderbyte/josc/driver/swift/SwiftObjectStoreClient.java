@@ -91,7 +91,7 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
             return new ContinuableListingImpl<>(
                     swiftClient.getContainer(bucket).list(keyPrefix, nextContinuationToken, maxObjects)
                             .stream()
-                            .map(obj -> SwiftBlobObjectBuilder.build(obj))
+                            .map(obj -> SwiftBlobObjectBuilder.build(bucket, obj))
                             .collect(Collectors.toList()),
                     null, // TODO Handle pagination / tokens
                     null,   // TODO Handle pagination / tokens
@@ -127,7 +127,7 @@ public class SwiftObjectStoreClient implements ObjectStoreClient {
         try {
 
             StoredObject object = swiftClient.getContainer(bucket).getObject(key);
-            return SwiftBlobObjectBuilder.build(object);
+            return SwiftBlobObjectBuilder.build(bucket, object);
 
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to get Object-Info of object: " + bucket +" / " + key, e);

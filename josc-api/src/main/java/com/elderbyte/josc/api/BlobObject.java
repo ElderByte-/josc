@@ -3,13 +3,18 @@ package com.elderbyte.josc.api;
 import com.elderbyte.josc.core.BlobObjectUtils;
 
 import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a blob object
  */
 public interface BlobObject {
+
+    /**
+     * Gets the bucket name where this object is stored
+     */
+    String getBucket();
 
     /**
      * Gets the object name (its unique key).
@@ -25,9 +30,22 @@ public interface BlobObject {
     long getLength();
 
     /**
-     * A unique file hash.
+     * Gets the content type (mime-type) of this object.
      */
-    String hash();
+    Optional<String> getContentType();
+
+    /**
+     * Gets the objects server side calculated hash.
+     * Might not be available.
+     */
+    Optional<String> getObjectHash();
+
+    /**
+     * @deprecated Please switch to getObjectHash()
+     */
+    default String hash() {
+        return getObjectHash().orElse(null);
+    }
 
     /**
      * Last modified / creation date of this object

@@ -144,7 +144,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
             var result = s3client.listObjectsV2(listObjectsRequest);
 
-            return AwsBlobObjectBuilder.buildChunk(result);
+            return AwsBlobObjectBuilder.buildChunk(bucket, result);
         }catch (Exception e){
             throw new ObjectStoreClientException(
                     "Failed to listBlobObjectsChunked: + bucket: " + bucket
@@ -159,8 +159,8 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         validateKeyOrThrow(key);
 
         try{
-            HeadObjectResponse meta = s3client.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build());
-            return AwsBlobObjectBuilder.build(key, meta);
+            var meta = s3client.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build());
+            return AwsBlobObjectBuilder.build(bucket, key, meta);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to getBlobObjectInfo: + bucket: " + bucket + ", key:" + key, e);
         }

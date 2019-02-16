@@ -22,16 +22,16 @@ import java.util.stream.Collectors;
 class AwsBlobObjectBuilder {
 
 
-    static ContinuableListing<BlobObject> buildChunk(ListObjectsV2Response result){
+    static ContinuableListing<BlobObject> buildChunk(String bucket, ListObjectsV2Response result){
 
         if(result == null) throw new IllegalArgumentException("result was NULL!");
 
         List<BlobObject> objectList = result.contents() != null ? result.contents().stream()
-                .map(s -> AwsBlobObjectBuilder.build(s))
+                .map(o -> AwsBlobObjectBuilder.build(bucket, o))
                 .collect(Collectors.toList()) : new ArrayList<>();
 
         List<BlobObject> directories = result.commonPrefixes() != null ? result.commonPrefixes().stream()
-                .map(p -> AwsBlobObjectBuilder.buildDirectory(p))
+                .map(o -> AwsBlobObjectBuilder.buildDirectory(bucket, o))
                 .collect(Collectors.toList()) : new ArrayList<>();
 
         directories.addAll(objectList);
@@ -43,7 +43,7 @@ class AwsBlobObjectBuilder {
                 Optional.ofNullable(result.maxKeys()).orElse(0));
     }
 
-    static BlobObject build(String key, HeadObjectResponse meta) {
+    static BlobObject build(String bucket, String key, HeadObjectResponse meta) {
         if(meta == null) throw new IllegalArgumentException("meta was NULL!");
 
         Instant createdTime;
@@ -54,15 +54,17 @@ class AwsBlobObjectBuilder {
         }
 
         return new BlobObjectSimple(
+                bucket,
                 key,
                 Optional.ofNullable(meta.contentLength()).orElse(0L),
                 toOffsetDatetime(createdTime),
                 meta.eTag(),
-                false
+                false,
+                meta.contentType()
         );
     }
 
-    static BlobObject build(S3Object summary){
+    static BlobObject build(String bucket, S3Object summary){
 
         if(summary == null) throw new IllegalArgumentException("summary was NULL!");
 
@@ -74,22 +76,27 @@ class AwsBlobObjectBuilder {
         }
 
         return new BlobObjectSimple(
+                bucket,
                 summary.key(),
                 Optional.ofNullable(summary.size()).orElse(0L),
                 toOffsetDatetime(createdTime),
                 summary.eTag(),
-                false
+                false,
+                null
+
         );
     }
 
-    static BlobObject buildDirectory(CommonPrefix prefix) {
+    static BlobObject buildDirectory(String bucket, CommonPrefix prefix) {
 
         return new BlobObjectSimple(
+                bucket,
                 prefix.prefix(),
                 0,
                 null,
                 null,
-                true
+                true,
+                null
         );
     }
 

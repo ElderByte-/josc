@@ -14,13 +14,15 @@ import java.util.Map;
 
 
 class SwiftBlobObjectBuilder {
-    public static BlobObject build(StoredObject swiftObject){
+    public static BlobObject build(String bucket, StoredObject swiftObject){
         return new BlobObjectSimple(
+                bucket,
                 swiftObject.getName(),
                 swiftObject.getContentLength(),
                 swiftObject.getLastModifiedAsDate().toInstant().atOffset(ZoneOffset.UTC),
                 swiftObject.getEtag(),
-                swiftObject.isDirectory()
+                swiftObject.isDirectory(),
+                swiftObject.getContentType()
         );
     }
 
