@@ -67,6 +67,8 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         try {
             s3client.headBucket(HeadBucketRequest.builder().bucket(bucket).build());
             return true;
+        }catch (NoSuchBucketException e){
+            return false;
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to bucketExists + " + bucket, e);
         }
