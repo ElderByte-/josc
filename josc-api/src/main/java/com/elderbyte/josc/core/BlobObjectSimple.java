@@ -46,9 +46,8 @@ public class BlobObjectSimple implements BlobObject {
             String contentType
     ){
 
-        if (bucket == null) throw new IllegalArgumentException("bucket");
-        if (objectName == null) throw new IllegalArgumentException("objectName");
-        if (lastModified == null) throw new IllegalArgumentException("lastModified");
+        if (bucket == null) throw new IllegalArgumentException("bucket must not be null!");
+        if (objectName == null) throw new IllegalArgumentException("objectName must not be null");
 
         this.bucket = bucket;
         this.objectName = objectName;
@@ -86,8 +85,8 @@ public class BlobObjectSimple implements BlobObject {
     }
 
     @Override
-    public OffsetDateTime getLastModified() {
-        return lastModified;
+    public Optional<OffsetDateTime> getLastModified() {
+        return Optional.ofNullable(lastModified);
     }
 
     @Override

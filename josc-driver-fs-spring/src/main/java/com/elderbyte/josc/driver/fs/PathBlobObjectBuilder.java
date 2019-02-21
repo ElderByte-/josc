@@ -86,7 +86,7 @@ public class PathBlobObjectBuilder {
             try {
                 return Files.size(path);
             } catch (IOException e) {
-                throw new ObjectStoreClientException("Failed to get size.", e);
+                throw new ObjectStoreClientException("Failed to get file size.", e);
             }
         }
 
@@ -101,13 +101,15 @@ public class PathBlobObjectBuilder {
         }
 
         @Override
-        public OffsetDateTime getLastModified() {
+        public Optional<OffsetDateTime> getLastModified() {
             try {
-                return Files.getLastModifiedTime(path)
+                return Optional.of(
+                        Files.getLastModifiedTime(path)
                         .toInstant()
-                        .atOffset(ZoneOffset.UTC);
+                        .atOffset(ZoneOffset.UTC)
+                );
             } catch (IOException e) {
-                throw new ObjectStoreClientException("Failed to get size.", e);
+                return Optional.empty();
             }
         }
 

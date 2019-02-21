@@ -50,7 +50,7 @@ public interface BlobObject {
     /**
      * Last modified / creation date of this object
      */
-    OffsetDateTime getLastModified();
+    Optional<OffsetDateTime> getLastModified();
 
     /**
      * Other metadata data
