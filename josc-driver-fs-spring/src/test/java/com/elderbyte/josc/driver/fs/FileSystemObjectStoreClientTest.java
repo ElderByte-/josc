@@ -47,13 +47,13 @@ public class FileSystemObjectStoreClientTest {
     @Test
     public void getByKeyBlobObjects() {
         BlobObject info = localClient.getBlobObjectInfo("Movies", "Movies/Big_Buck_Bunny_1080p_surround_FrostWire.com.avi");
-        Assert.assertEquals("Movies/Big_Buck_Bunny_1080p_surround_FrostWire.com.avi", info.getObjectName());
+        Assert.assertEquals("Movies/Big_Buck_Bunny_1080p_surround_FrostWire.com.avi", info.getObjectKey());
     }
 
     @Test
     public void getByKeyBlobObjects2() {
         BlobObject info = localClient.getBlobObjectInfo("Pictures", ".localized");
-        Assert.assertEquals(".localized", info.getObjectName());
+        Assert.assertEquals(".localized", info.getObjectKey());
     }
 
     //

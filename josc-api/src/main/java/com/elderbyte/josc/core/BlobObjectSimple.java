@@ -70,7 +70,7 @@ public class BlobObjectSimple implements BlobObject {
     }
 
     @Override
-    public String getObjectName() {
+    public String getObjectKey() {
         return objectName;
     }
 

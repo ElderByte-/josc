@@ -77,7 +77,7 @@ public class PathBlobObjectBuilder {
         }
 
         @Override
-        public String getObjectName() {
+        public String getObjectKey() {
             return key;
         }
 

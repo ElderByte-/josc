@@ -17,12 +17,19 @@ public interface BlobObject {
     String getBucket();
 
     /**
-     * Gets the object name (its unique key).
+     * Gets the object key.
      *
-     * The object name is a bucket unique key which allows to identify an object.
+     * The object key is unique inside a bucket.
      * It may contain slashes '/', which are considered as virtual directory notations.
      */
-    String getObjectName();
+    String getObjectKey();
+
+    /**
+     * @deprecated Please switch to getObjectKey()
+     */
+    default String getObjectName() {
+        return getObjectKey();
+    }
 
     /**
      * The blob object size in bytes
@@ -70,7 +77,7 @@ public interface BlobObject {
      * @return Returns the last part after the last '/', if no '/' is found returns the input string.
      */
     default String getVirtualFileName(){
-        return BlobObjectUtils.extractVirtualFileName(getObjectName());
+        return BlobObjectUtils.extractVirtualFileName(getObjectKey());
     }
 
     /**
@@ -80,7 +87,7 @@ public interface BlobObject {
      * @return Returns the extension with the dot, such as '.png'
      */
     default String getVirtualExtension(){
-        return BlobObjectUtils.extractVirtualExtensionWithDot(getObjectName());
+        return BlobObjectUtils.extractVirtualExtensionWithDot(getObjectKey());
     }
 
 }
