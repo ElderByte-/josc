@@ -58,11 +58,12 @@ class AwsBlobObjectBuilder {
                 key,
                 Optional.ofNullable(meta.contentLength()).orElse(0L),
                 toOffsetDatetime(createdTime),
-                meta.eTag(),
+                trimQuotes(meta.eTag()), // AWS S3 Quirk as it quotes Etag
                 false,
                 meta.contentType()
         );
     }
+
 
     static BlobObject build(String bucket, S3Object summary){
 
@@ -80,7 +81,7 @@ class AwsBlobObjectBuilder {
                 summary.key(),
                 Optional.ofNullable(summary.size()).orElse(0L),
                 toOffsetDatetime(createdTime),
-                summary.eTag(),
+                trimQuotes(summary.eTag()), // AWS S3 Quirk as it quotes Etag
                 false,
                 null
 
@@ -122,5 +123,20 @@ class AwsBlobObjectBuilder {
         }else{
             return OffsetDateTime.now();
         }
+    }
+
+
+    private static String trimQuotes(String etag){
+        // https://github.com/aws/aws-sdk-net/issues/815
+        // AWS S3 returns the ETag wrapped in quotes (and so does Minio) so we unwrap it here
+        if(etag != null){
+            if(etag.startsWith("\"")){
+                etag = etag.substring(1);
+            }
+            if(etag.endsWith("\"")){
+                etag = etag.substring(0, etag.length()-1);
+            }
+        }
+        return etag;
     }
 }
