@@ -11,12 +11,9 @@ import software.amazon.awssdk.services.s3.model.*;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -38,9 +35,23 @@ import java.util.stream.Stream;
  */
 public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
+
+    /***************************************************************************
+     *                                                                         *
+     * Fields                                                                  *
+     *                                                                         *
+     **************************************************************************/
+
     private static final int MAX_KEYS = 1000;
     private final S3Client s3client; // TODO Switch to the async client
     private final MinioClient minioClient;
+
+
+    /***************************************************************************
+     *                                                                         *
+     * Constructor                                                             *
+     *                                                                         *
+     **************************************************************************/
 
 
     public AwsS3ObjectStoreClient(
@@ -51,6 +62,11 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         this.minioClient = minioClient;
     }
 
+    /***************************************************************************
+     *                                                                         *
+     * Public API                                                              *
+     *                                                                         *
+     **************************************************************************/
 
     @Override
     public Stream<Bucket> listBuckets() {
@@ -341,11 +357,11 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
     }
 
 
-    private Date toDateFromNow(Duration temporalAmount){
-        LocalDateTime now = LocalDateTime.now().plus(temporalAmount);
-        return Date.from(now.toInstant(ZoneOffset.UTC));
-    }
-
+    /***************************************************************************
+     *                                                                         *
+     * Private methods                                                         *
+     *                                                                         *
+     **************************************************************************/
 
     private void validateBucketNameOrThrow(String bucket){
         if(bucket == null) throw new IllegalArgumentException("bucket must not be null!");
