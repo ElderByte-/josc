@@ -39,11 +39,13 @@ import java.util.stream.Stream;
 public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
     private static final int MAX_KEYS = 1000;
-    private final S3Client s3client;
+    private final S3Client s3client; // TODO Switch to the async client
     private final MinioClient minioClient;
 
 
-    public AwsS3ObjectStoreClient(S3Client s3client, MinioClient minioClient){
+    public AwsS3ObjectStoreClient(
+            S3Client s3client,
+            MinioClient minioClient){
         if(s3client == null) throw new IllegalArgumentException("s3client must not be null!");
         this.s3client = s3client;
         this.minioClient = minioClient;
@@ -183,27 +185,37 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
     @Override
     public InputStream getBlobObject(String bucket, String key) {
-        validateBucketNameOrThrow(bucket);
-        validateKeyOrThrow(key);
-
-        try {
-            return minioClient.getObject(bucket, key);
-            /* // TODO Switch to aws sdk (currently broken in preview)
-            return s3client.getObject(
-                    GetObjectRequest.builder()
-                            .bucket(bucket)
-                            .key(key)
-                            .build()
-            );*/
-        }catch (Exception e){
-            throw new ObjectStoreClientException("Failed to getBlobObject: + bucket: " + bucket + ", key:" + key, e);
-        }
+        return getBlobObject(bucket, key, 0);
     }
 
     @Override
     public InputStream getBlobObject(String bucket, String key, long offset) {
+        return getBlobObject(bucket, key, offset, null);
+    }
+
+    public InputStream getBlobObject(String bucket, String key, long offset, Long length) {
+        String range = null;
+        if (length != null) {
+            range = "bytes=" + offset + "-" + (offset + length - 1);
+        } else if (offset > 0) {
+            range = "bytes=" + offset + "-";
+        }
+        return getBlobObject(bucket, key, range);
+    }
+
+    public InputStream getBlobObject(String bucket, String key, String range) {
+
+        validateBucketNameOrThrow(bucket);
+        validateKeyOrThrow(key);
+
         try {
-            return minioClient.getObject(bucket, key, offset); // TODO Switch to aws sdk
+            var getRequest =  GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key);
+            if(range != null){
+                getRequest.range(range);
+            }
+            return s3client.getObject(getRequest.build());
         } catch (Exception e) {
             throw new ObjectStoreClientException("Failed to getBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
@@ -229,7 +241,13 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         if(objectStream == null) throw new IllegalArgumentException("objectStream must not be null!");
 
         try {
-            s3client.putObject(PutObjectRequest.builder().bucket(bucket).key(key).build(), RequestBody.fromInputStream(objectStream, contentLength));
+            s3client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(key)
+                            .build(),
+                    RequestBody.fromInputStream(objectStream, contentLength)
+            );
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to putBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
@@ -293,16 +311,6 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
         try {
 
-
-            /*
-            var getRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
-
-            AwsS3V4Signer.create().presign(
-                    getRequest-todo,
-                    Aws4PresignerParams.builder().build()
-            );*/
-
-
             return minioClient.presignedGetObject(bucket, key, (int)temporalAmount.get(ChronoUnit.SECONDS)); // TODO SDK V2 Does not yet support presigned urls
         }catch (Exception e){
             throw new ObjectStoreClientException("getTempGETUrl failed! bucket: " + bucket + ", key:" + key, e);
@@ -325,10 +333,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
     public String getPublicUrl(String bucket, String key) {
         validateBucketNameOrThrow(bucket);
         validateKeyOrThrow(key);
-
-
         try {
-
             return minioClient.getObjectUrl(bucket, key); // TODO SDK V2 Does not yet support building urls
         }catch (Exception e){
             throw new ObjectStoreClientException("getPublicUrl failed! bucket: " + bucket + ", key:" + key, e);
