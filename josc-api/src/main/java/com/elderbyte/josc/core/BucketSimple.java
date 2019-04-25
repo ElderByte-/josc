@@ -2,16 +2,15 @@ package com.elderbyte.josc.core;
 
 import com.elderbyte.josc.api.Bucket;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 
 public class BucketSimple implements Bucket {
 
     private final String name;
-    private final OffsetDateTime creationDate;
+    private final Instant creationDate;
 
-    public BucketSimple(String name, OffsetDateTime creationDate){
+    public BucketSimple(String name, Instant creationDate){
         this.name = name;
         this.creationDate = creationDate;
     }
@@ -22,7 +21,7 @@ public class BucketSimple implements Bucket {
     }
 
     @Override
-    public OffsetDateTime getCreationDate() {
+    public Instant getCreationDate() {
         return creationDate;
     }
 }

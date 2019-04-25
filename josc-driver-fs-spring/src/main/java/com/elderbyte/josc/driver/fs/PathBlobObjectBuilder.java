@@ -6,10 +6,8 @@ import com.elderbyte.josc.api.ObjectStoreClientException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -101,12 +99,11 @@ public class PathBlobObjectBuilder {
         }
 
         @Override
-        public Optional<OffsetDateTime> getLastModified() {
+        public Optional<Instant> getLastModified() {
             try {
                 return Optional.of(
                         Files.getLastModifiedTime(path)
                         .toInstant()
-                        .atOffset(ZoneOffset.UTC)
                 );
             } catch (IOException e) {
                 return Optional.empty();

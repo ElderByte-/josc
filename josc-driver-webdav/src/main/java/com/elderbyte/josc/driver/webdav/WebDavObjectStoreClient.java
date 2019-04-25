@@ -14,7 +14,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.*;
-import java.time.temporal.TemporalAmount;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,7 +45,7 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
                 .map(
                         r -> new BucketSimple(
                             r.getName(),
-                            r.getCreation().toInstant().atOffset(ZoneOffset.UTC)
+                            r.getCreation().toInstant()
                         )
                 );
 
@@ -79,7 +78,7 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
             sardine.createDirectory(getBucketUrl(bucket));
             return new BucketSimple(
                     bucket,
-                    OffsetDateTime.now()
+                    Instant.now()
             );
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to create bucket!", e);
@@ -259,7 +258,7 @@ public class WebDavObjectStoreClient implements ObjectStoreClient {
             bucket,
             getObjectKey(bucket, res),
             res.getContentLength(),
-                res.getCreation().toInstant().atOffset(ZoneOffset.UTC),
+            res.getCreation().toInstant(),
             res.getEtag(),
             res.isDirectory(),
             res.getContentType()

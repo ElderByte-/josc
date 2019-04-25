@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +109,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
         try {
             s3client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
-            return new BucketSimple(bucket, OffsetDateTime.now());
+            return new BucketSimple(bucket, Instant.now());
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to removeBucket + " + bucket, e);
         }

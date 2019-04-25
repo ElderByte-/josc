@@ -57,7 +57,7 @@ class AwsBlobObjectBuilder {
                 bucket,
                 key,
                 Optional.ofNullable(meta.contentLength()).orElse(0L),
-                toOffsetDatetime(createdTime),
+                createdTime,
                 trimQuotes(meta.eTag()), // AWS S3 Quirk as it quotes Etag
                 false,
                 meta.contentType()
@@ -80,7 +80,7 @@ class AwsBlobObjectBuilder {
                 bucket,
                 summary.key(),
                 Optional.ofNullable(summary.size()).orElse(0L),
-                toOffsetDatetime(createdTime),
+                createdTime,
                 trimQuotes(summary.eTag()), // AWS S3 Quirk as it quotes Etag
                 false,
                 null
@@ -114,17 +114,9 @@ class AwsBlobObjectBuilder {
 
         return new BucketSimple(
                 awsBucket.name(),
-                toOffsetDatetime(createdDate));
+                createdDate
+        );
     }
-
-    private static OffsetDateTime toOffsetDatetime(Instant date){
-        if(date != null){
-            return date.atOffset(ZoneOffset.UTC);
-        }else{
-            return OffsetDateTime.now();
-        }
-    }
-
 
     private static String trimQuotes(String etag){
         // https://github.com/aws/aws-sdk-net/issues/815

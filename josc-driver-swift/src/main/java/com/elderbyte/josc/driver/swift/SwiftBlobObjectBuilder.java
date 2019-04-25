@@ -7,10 +7,7 @@ import com.elderbyte.josc.core.BucketSimple;
 import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
 
-import java.sql.Blob;
 import java.time.*;
-import java.util.HashMap;
-import java.util.Map;
 
 
 class SwiftBlobObjectBuilder {
@@ -19,7 +16,7 @@ class SwiftBlobObjectBuilder {
                 bucket,
                 swiftObject.getName(),
                 swiftObject.getContentLength(),
-                swiftObject.getLastModifiedAsDate().toInstant().atOffset(ZoneOffset.UTC),
+                swiftObject.getLastModifiedAsDate().toInstant(),
                 swiftObject.getEtag(),
                 swiftObject.isDirectory(),
                 swiftObject.getContentType()
@@ -27,6 +24,6 @@ class SwiftBlobObjectBuilder {
     }
 
     public static Bucket build(Container container){
-        return new BucketSimple(container.getName(), OffsetDateTime.now()); // TODO get creation date
+        return new BucketSimple(container.getName(), Instant.now()); // TODO get creation date
     }
 }

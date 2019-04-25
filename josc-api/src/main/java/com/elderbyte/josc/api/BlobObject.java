@@ -2,7 +2,7 @@ package com.elderbyte.josc.api;
 
 import com.elderbyte.josc.core.BlobObjectUtils;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
@@ -57,7 +57,7 @@ public interface BlobObject {
     /**
      * Last modified / creation date of this object
      */
-    Optional<OffsetDateTime> getLastModified();
+    Optional<Instant> getLastModified();
 
     /**
      * Other metadata data
