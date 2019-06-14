@@ -64,6 +64,20 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
 
     /***************************************************************************
      *                                                                         *
+     * Properties                                                              *
+     *                                                                         *
+     **************************************************************************/
+
+    public S3Client getS3client(){
+        return s3client;
+    }
+
+    public MinioClient getMinioClient(){
+        return minioClient;
+    }
+
+    /***************************************************************************
+     *                                                                         *
      * Public API                                                              *
      *                                                                         *
      **************************************************************************/
@@ -281,7 +295,7 @@ public class AwsS3ObjectStoreClient implements ObjectStoreClient {
         if(objectStream == null) throw new IllegalArgumentException("objectStream must not be null!");
 
         try {
-            minioClient.putObject(bucket, key, objectStream, contentType);
+            minioClient.putObject(bucket, key, objectStream, null, null, null, contentType);
         }catch (Exception e){
             throw new ObjectStoreClientException("Failed to putBlobObject: + bucket: " + bucket + ", key:" + key, e);
         }
